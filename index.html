@@ -443,14 +443,20 @@
   </div>
   <div class="drawer-body">
     <div class="presets">
-      <button class="preset-btn" data-preset="preset">
-        <div class="pt" data-i18n="presetDefaultT">Domyślny</div><div class="pd" data-i18n="presetDefaultD">2×2 sceny główne + kolumna Secondary</div>
-      </button>
       <button class="preset-btn" data-preset="grid">
-        <div class="pt" data-i18n="presetGridT">Równa siatka</div><div class="pd" data-i18n="presetGridD">Wszystkie aktywne sceny w kratce</div>
+        <div class="pt" data-i18n="presetGridT">Równa siatka</div><div class="pd" data-i18n="presetGridD">Równe kafelki, automatyczny układ</div>
+      </button>
+      <button class="preset-btn" data-preset="focus">
+        <div class="pt" data-i18n="presetFocusT">Fokus</div><div class="pd" data-i18n="presetFocusD">Jeden duży + pasek miniatur</div>
+      </button>
+      <button class="preset-btn" data-preset="column">
+        <div class="pt" data-i18n="presetColT">Kolumna</div><div class="pd" data-i18n="presetColD">Pionowa lista podglądów</div>
+      </button>
+      <button class="preset-btn" data-preset="row">
+        <div class="pt" data-i18n="presetRowT">Rząd</div><div class="pd" data-i18n="presetRowD">Poziomy pasek obok siebie</div>
       </button>
       <button class="preset-btn" data-preset="custom">
-        <div class="pt" data-i18n="presetCustomT">Własny</div><div class="pd" data-i18n="presetCustomD">Ułóż przeciągając sceny poniżej</div>
+        <div class="pt" data-i18n="presetCustomT">Własny</div><div class="pd" data-i18n="presetCustomD">Ułóż i skaluj ręcznie</div>
       </button>
     </div>
     <div id="customEditor">
@@ -509,9 +515,7 @@ const I18N={
     emptyTitle:"Brak podglądów", emptySub:"Dodaj streamy z YouTube, Twitch lub Kick — wklej link w ustawieniach.", emptyBtn:"Dodaj podgląd", copyright:"© 2026 mosiuu · Wszelkie prawa zastrzeżone · Kopiowanie i rozpowszechnianie zabronione", fillTitle:"Wypełnij kafelki", fillDesc:"Obraz wypełnia cały kafelek — bez czarnych pasów, ale przycina brzegi kadru.", resetBtn:"Wyczyść wszystkie podglądy", addCustom:"+ Dodaj podgląd (link)", done:"Gotowe", credit:"made by mosiuu",
     sceneOff:"Scena wyłączona", noUrl:"Brak adresu — dodaj go w ustawieniach (zębatka)",
     tReload:"Odśwież", tFull:"Pełny ekran", tOpen:"Otwórz w nowej karcie", tHide:"Ukryj kafelek (np. offline)",
-    layoutTitle:"Układ siatki", presetDefaultT:"Domyślny", presetDefaultD:"2×2 sceny główne + Secondary; dopasowuje się przy wyłączaniu",
-    presetGridT:"Równa siatka", presetGridD:"Wszystkie aktywne sceny w kratce",
-    presetCustomT:"Własny", presetCustomD:"Ułóż przeciągając sceny poniżej",
+    layoutTitle:"Układ siatki", presetGridT:"Równa siatka", presetGridD:"Równe kafelki, automatyczny układ", presetFocusT:"Fokus", presetFocusD:"Jeden duży + pasek miniatur", presetColT:"Kolumna", presetColD:"Pionowa lista podglądów", presetRowT:"Rząd", presetRowD:"Poziomy pasek obok siebie", presetCustomT:"Własny", presetCustomD:"Ułóż i skaluj ręcznie",
     cols:"Kolumny", rows:"Wiersze", dragHint:"Aktywne sceny — przeciągnij na siatkę", dropScene:"upuść scenę", adjustSize:"Dostosuj rozmiar kafelków", pickTile:"Kliknij kafelek na siatce, aby ustawić jego rozmiar", wLbl:"Szerokość", hLbl:"Wysokość",
     applyLayout:"Zastosuj układ", close:"Zamknij", palEmpty:"Brak aktywnych scen — włącz je w ustawieniach.",
     customName:"Własny", promptUnlock:"Podaj hasło, aby edytować domyślne linki:", wrongPass:"Błędne hasło.",
@@ -530,9 +534,7 @@ const I18N={
     emptyTitle:"No streams yet", emptySub:"Add streams from YouTube, Twitch or Kick — paste a link in settings.", emptyBtn:"Add a stream", copyright:"© 2026 mosiuu · All rights reserved · Copying and redistribution prohibited", fillTitle:"Fill tiles", fillDesc:"Video fills the whole tile — no black bars, but crops the edges of the frame.", resetBtn:"Clear all streams", addCustom:"+ Add stream (link)", done:"Done", credit:"made by mosiuu",
     sceneOff:"Scene off", noUrl:"No URL — add it in settings (gear icon)",
     tReload:"Reload", tFull:"Fullscreen", tOpen:"Open in new tab", tHide:"Hide tile (e.g. offline)",
-    layoutTitle:"Grid layout", presetDefaultT:"Default", presetDefaultD:"2×2 main stages + Secondary; auto-fits when scenes off",
-    presetGridT:"Even grid", presetGridD:"All active scenes in a grid",
-    presetCustomT:"Custom", presetCustomD:"Arrange by dragging scenes below",
+    layoutTitle:"Grid layout", presetGridT:"Even grid", presetGridD:"Equal tiles, auto arranged", presetFocusT:"Focus", presetFocusD:"One large + thumbnail strip", presetColT:"Column", presetColD:"Vertical list of streams", presetRowT:"Row", presetRowD:"Horizontal strip side by side", presetCustomT:"Custom", presetCustomD:"Arrange and resize manually",
     cols:"Columns", rows:"Rows", dragHint:"Active scenes — drag onto the grid", dropScene:"drop a scene", adjustSize:"Resize tiles", pickTile:"Click a tile on the grid to set its size", wLbl:"Width", hLbl:"Height",
     applyLayout:"Apply layout", close:"Close", palEmpty:"No active scenes — enable them in settings.",
     customName:"Custom", promptUnlock:"Enter the password to edit default links:", wrongPass:"Wrong password.",
@@ -744,32 +746,38 @@ function renderWall(){
     afterWall();return;
   }
 
-  if(m==="preset"){
-    const presetIds=["s1","s2","s3","s4","sec1","sec2","sec3"];
-    const on=presetIds.filter(id=>{const s=byId(id);return s&&s.enabled;});
-    const extras=state.sources.filter(s=>s.enabled && !presetIds.includes(s.id));
-    if(on.length===7 && extras.length===0){
-      // dokładnie: Stage 1-4 w 2×2 + kolumna Secondary 1-3 po prawej
-      wall.classList.add("preset");
-      presetIds.forEach((id,i)=>wall.appendChild(buildTile(byId(id),i+1,"area-"+id)));
-      afterWall();return;
-    }
-    // gdy coś wyłączone/dodane → dopasuj automatycznie
-    const act2=[...on.map(id=>byId(id)),...extras];
-    const n2=act2.length||1, c2=Math.max(1,Math.ceil(Math.sqrt(n2))), r2=Math.ceil(n2/c2);
-    wall.style.gridTemplateColumns=`repeat(${c2},1fr)`;
-    wall.style.gridTemplateRows=`repeat(${r2},1fr)`;
-    act2.forEach((s,i)=>wall.appendChild(buildTile(s,i+1,null)));
-    afterWall();return;
-  }
-
-  // równa siatka → równe kafelki, tylko aktywne, wypełniają ekran
+  // gotowe układy (grid / focus / column / row) — działają na dowolnych aktywnych podglądach
   const act=state.sources.filter(s=>s.enabled);
-  const n=act.length||1, cols=Math.max(1,Math.ceil(Math.sqrt(n))), rows=Math.ceil(n/cols);
-  wall.style.gridTemplateColumns=`repeat(${cols},1fr)`;
-  wall.style.gridTemplateRows=`repeat(${rows},1fr)`;
-  act.forEach((s,i)=>wall.appendChild(buildTile(s,i+1,null)));
+  const arr=presetArrange(m, act.map(s=>s.id));
+  if(arr){
+    wall.style.gridTemplateColumns=`repeat(${arr.cols},1fr)`;
+    wall.style.gridTemplateRows=`repeat(${arr.rows},1fr)`;
+    arr.items.forEach((it,idx)=>{
+      const tile=buildTile(byId(it.id),idx+1,null);
+      tile.style.gridColumn=`${it.c+1} / span ${it.w}`;
+      tile.style.gridRow=`${it.r+1} / span ${it.h}`;
+      wall.appendChild(tile);
+    });
+  }
   afterWall();
+}
+
+// Buduje rozmieszczenie kafelków dla gotowych układów
+function presetArrange(mode, ids){
+  const n=ids.length;
+  if(!n) return null;
+  if(mode==="column") return {cols:1, rows:n, items:ids.map((id,i)=>({id,c:0,r:i,w:1,h:1}))};
+  if(mode==="row")    return {cols:n, rows:1, items:ids.map((id,i)=>({id,c:i,r:0,w:1,h:1}))};
+  if(mode==="focus"){
+    if(n===1) return {cols:1, rows:1, items:[{id:ids[0],c:0,r:0,w:1,h:1}]};
+    const cols=n-1, rows=3;
+    const items=[{id:ids[0], c:0, r:0, w:cols, h:2}];
+    for(let i=1;i<n;i++) items.push({id:ids[i], c:i-1, r:2, w:1, h:1});
+    return {cols, rows, items};
+  }
+  // grid (domyślny) i wszystko inne
+  const cols=Math.max(1,Math.ceil(Math.sqrt(n))), rows=Math.ceil(n/cols);
+  return {cols, rows, items:ids.map((id,i)=>({id, c:i%cols, r:Math.floor(i/cols), w:1, h:1}))};
 }
 
 function emptyTile(){
