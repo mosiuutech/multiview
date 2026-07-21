@@ -868,6 +868,7 @@ function setLang(l){
   if(document.getElementById("settingsDrawer").classList.contains("show")) renderSettings();
   if(document.getElementById("layoutDrawer").classList.contains("show")) renderEditor();
   const ab=document.getElementById("audiobar");if(ab && !ab.hidden) renderAudioPanel();
+  if(!state.sources.some(s=>s.enabled)) renderWall(); // odśwież ekran „brak podglądów"
 }
 
 function promptUnlock(){
