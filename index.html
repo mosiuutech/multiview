@@ -520,7 +520,7 @@ const I18N={
     note:'Aby oglądać linki produkcyjne, musisz być w tej samej sieci co produkcja (to samo WiFi).',
     emptyTitle:"Brak podglądów", emptySub:"Dodaj YouTube, Twitch, Kick, Spotify lub Apple Music — wklej link w ustawieniach.", emptyBtn:"Dodaj podgląd", copyright:"© 2026 mosiuu · Wszelkie prawa zastrzeżone · Kopiowanie i rozpowszechnianie zabronione", borderColor:"Kolor ramki", borderWidthTitle:"Grubość ramek", borderWidthDesc:"Grubość obramowania każdego kafelka (0 = brak).", fillTitle:"Wypełnij kafelki", fillDesc:"Obraz wypełnia cały kafelek — bez czarnych pasów, ale przycina brzegi kadru.", resetBtn:"Wyczyść wszystkie podglądy", addCustom:"+ Dodaj podgląd (link)", done:"Gotowe", credit:"made by mosiuu",
     sceneOff:"Scena wyłączona", noUrl:"Brak adresu — dodaj go w ustawieniach (zębatka)",
-    tReload:"Odśwież", tFull:"Pełny ekran", tOpen:"Otwórz w nowej karcie", tHide:"Ukryj kafelek (np. offline)", tFill:"Rozciągnij / wypełnij kafelek",
+    tReload:"Odśwież", tFull:"Pełny ekran", tOpen:"Otwórz w nowej karcie", tHide:"Ukryj kafelek (np. offline)", tFill:"Rozciągnij / wypełnij kafelek", tLoop:"Odtwarzanie w pętli (YouTube)",
     layoutTitle:"Układ siatki", presetGridT:"Równa siatka", presetGridD:"Równe kafelki, automatyczny układ", presetFocusT:"Fokus", presetFocusD:"Jeden duży + pasek miniatur", presetColT:"Kolumna", presetColD:"Pionowa lista podglądów", presetRowT:"Rząd", presetRowD:"Poziomy pasek obok siebie", presetCustomT:"Własny", presetCustomD:"Ułóż i skaluj ręcznie",
     cols:"Kolumny", rows:"Wiersze", dragHint:"Aktywne sceny — przeciągnij na siatkę", dropScene:"upuść scenę", adjustSize:"Dostosuj rozmiar kafelków", pickTile:"Kliknij kafelek na siatce, aby ustawić jego rozmiar", wLbl:"Szerokość", hLbl:"Wysokość",
     applyLayout:"Zastosuj układ", close:"Zamknij", palEmpty:"Brak aktywnych scen — włącz je w ustawieniach.",
@@ -539,7 +539,7 @@ const I18N={
     note:'To watch production links you must be on the same network as the production (same WiFi).',
     emptyTitle:"No streams yet", emptySub:"Add YouTube, Twitch, Kick, Spotify or Apple Music — paste a link in settings.", emptyBtn:"Add a stream", copyright:"© 2026 mosiuu · All rights reserved · Copying and redistribution prohibited", borderColor:"Border color", borderWidthTitle:"Border thickness", borderWidthDesc:"Border width of each tile (0 = none).", fillTitle:"Fill tiles", fillDesc:"Video fills the whole tile — no black bars, but crops the edges of the frame.", resetBtn:"Clear all streams", addCustom:"+ Add stream (link)", done:"Done", credit:"made by mosiuu",
     sceneOff:"Scene off", noUrl:"No URL — add it in settings (gear icon)",
-    tReload:"Reload", tFull:"Fullscreen", tOpen:"Open in new tab", tHide:"Hide tile (e.g. offline)", tFill:"Stretch / fill tile",
+    tReload:"Reload", tFull:"Fullscreen", tOpen:"Open in new tab", tHide:"Hide tile (e.g. offline)", tFill:"Stretch / fill tile", tLoop:"Loop playback (YouTube)",
     layoutTitle:"Grid layout", presetGridT:"Even grid", presetGridD:"Equal tiles, auto arranged", presetFocusT:"Focus", presetFocusD:"One large + thumbnail strip", presetColT:"Column", presetColD:"Vertical list of streams", presetRowT:"Row", presetRowD:"Horizontal strip side by side", presetCustomT:"Custom", presetCustomD:"Arrange and resize manually",
     cols:"Columns", rows:"Rows", dragHint:"Active scenes — drag onto the grid", dropScene:"drop a scene", adjustSize:"Resize tiles", pickTile:"Click a tile on the grid to set its size", wLbl:"Width", hLbl:"Height",
     applyLayout:"Apply layout", close:"Close", palEmpty:"No active scenes — enable them in settings.",
@@ -564,7 +564,7 @@ function parseYtTime(v){
   const total=h*3600+mi*60+s;
   return total||null;
 }
-function youTubeEmbedUrl(raw){
+function youTubeEmbedUrl(raw, opts){
   let u;
   try{ u=new URL(raw, location.href); }catch(e){ return null; }
   const host=u.hostname.replace(/^www\./,"").replace(/^m\./,"");
@@ -597,8 +597,10 @@ function youTubeEmbedUrl(raw){
   const tSec=parseYtTime(u.searchParams.get("t")||u.searchParams.get("start"));
   if(tSec) params.set("start",String(tSec));
   if(listId) params.set("list",listId);
-  params.set("loop","1");
-  if(id && !listId) params.set("playlist", id);   // pętla dla pojedynczego wideo
+  if(!opts || opts.loop!==false){
+    params.set("loop","1");
+    if(id && !listId) params.set("playlist", id);   // pętla dla pojedynczego wideo
+  }
   params.set("origin",location.origin);
 
   const vid = id || "videoseries";
@@ -688,8 +690,8 @@ function appleMusicEmbedUrl(raw){
 }
 
 // ---------- Rozpoznaje link do platformy i zwraca gotowy adres embed ----------
-function platformEmbedUrl(raw){
-  return youTubeEmbedUrl(raw) || twitchEmbedUrl(raw) || kickEmbedUrl(raw)
+function platformEmbedUrl(raw, opts){
+  return youTubeEmbedUrl(raw, opts) || twitchEmbedUrl(raw) || kickEmbedUrl(raw)
       || spotifyEmbedUrl(raw) || appleMusicEmbedUrl(raw) || null;
 }
 
@@ -699,6 +701,7 @@ function icon(n){const p={
   open:'<path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6M10 14 21 3"/>',
   hide:'<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><path d="M1 1l22 22"/>',
   fill:'<path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"/><rect x="8" y="8" width="8" height="8" rx="1"/>',
+  loop:'<path d="M17 2l4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14M7 22l-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/>',
 }[n];return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${p}</svg>`;}
 
 function buildTile(src, index, areaClass){
@@ -716,7 +719,8 @@ function buildTile(src, index, areaClass){
     return tile;
   }
   if(src.url){
-    const ytUrl=platformEmbedUrl(src.url);
+    const ytUrl=platformEmbedUrl(src.url, {loop: src.loop!==false});
+    const isYT=!!youTubeEmbedUrl(src.url);
     const f=document.createElement("iframe");
     f.src=ytUrl||src.url;
     f.setAttribute("allow","autoplay; fullscreen; encrypted-media; picture-in-picture"+(ytUrl?"; accelerometer; gyroscope; clipboard-write":""));
@@ -724,8 +728,9 @@ function buildTile(src, index, areaClass){
     f.setAttribute("allowfullscreen","");
     tile.appendChild(f);
     const ctl=document.createElement("div");ctl.className="tctl";
-    ctl.innerHTML=`<button data-a="fill" title="${t("tFill")}"${src.fill?' class="active"':''}>${icon("fill")}</button>
-      <button data-a="hide" title="${t("tHide")}">${icon("hide")}</button>
+    ctl.innerHTML=`<button data-a="fill" title="${t("tFill")}"${src.fill?' class="active"':''}>${icon("fill")}</button>`
+      +(isYT?`<button data-a="loop" title="${t("tLoop")}"${src.loop!==false?' class="active"':''}>${icon("loop")}</button>`:``)
+      +`<button data-a="hide" title="${t("tHide")}">${icon("hide")}</button>
       <button data-a="reload" title="${t("tReload")}">${icon("reload")}</button>
       <button data-a="full" title="${t("tFull")}">${icon("full")}</button>
       <button data-a="open" title="${t("tOpen")}">${icon("open")}</button>`;
@@ -733,6 +738,12 @@ function buildTile(src, index, areaClass){
       src.fill=!src.fill; saveState();
       tile.classList.toggle("fill",src.fill);
       ctl.querySelector('[data-a="fill"]').classList.toggle("active",src.fill);
+    };
+    const lb=ctl.querySelector('[data-a="loop"]');
+    if(lb) lb.onclick=()=>{
+      src.loop=(src.loop===false); saveState();
+      f.src=platformEmbedUrl(src.url,{loop:src.loop!==false})||src.url;
+      lb.classList.toggle("active",src.loop!==false);
     };
     ctl.querySelector('[data-a="hide"]').onclick=()=>{src.enabled=false;saveState();renderWall();};
     ctl.querySelector('[data-a="reload"]').onclick=()=>{f.src=f.src;};
