@@ -160,7 +160,7 @@
     background:var(--panel);border-left:1px solid var(--line-bright);z-index:50;
     transform:translateX(100%);transition:transform .22s cubic-bezier(.4,0,.2,1);
     display:flex;flex-direction:column}
-  .drawer.wide{width:min(680px,96vw)}
+  .drawer.wide{width:min(1200px,97vw)}
   .drawer.show{transform:translateX(0)}
   .drawer-head{flex:0 0 auto;display:flex;align-items:center;gap:12px;padding:16px 18px;border-bottom:1px solid var(--line)}
   .drawer-head h2{margin:0;font-family:var(--mono);font-size:13px;letter-spacing:.16em;
@@ -187,8 +187,8 @@
   .src input.url{font-family:var(--mono);font-size:11px;color:var(--text)}
   .src input:focus{border-color:var(--signal)}
   .src input.name{font-weight:600}
-  .src .del{background:transparent;border:0;color:var(--text-dim);cursor:pointer;padding:5px;line-height:0;border-radius:5px;flex:0 0 auto}
-  .src .del:hover{color:var(--pgm);background:rgba(255,45,33,.08)}
+  .src .del{background:transparent;border:1px solid transparent;color:var(--pgm);cursor:pointer;padding:6px;line-height:0;border-radius:6px;flex:0 0 auto;margin-left:4px;opacity:.75}
+  .src .del:hover{opacity:1;color:#fff;background:var(--pgm);border-color:var(--pgm)}
   .src .del svg{width:15px;height:15px}
 
   .switch{position:relative;width:38px;height:22px;flex:0 0 auto;cursor:pointer}
@@ -212,6 +212,14 @@
   .btn-ghost{font-size:13px;background:transparent;border:1px solid var(--line-bright);color:var(--text);
     border-radius:7px;padding:11px 16px;cursor:pointer}
   .btn-ghost:hover{border-color:var(--signal);color:var(--text-bright)}
+  .btn-danger{font-size:13px;background:transparent;border:1px solid rgba(255,45,33,.5);color:var(--pgm);
+    border-radius:7px;padding:11px 16px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+  .btn-danger:hover{background:rgba(255,45,33,.1);border-color:var(--pgm)}
+  .btn-danger svg{width:15px;height:15px}
+  .btn-add{font-size:13px;font-weight:600;background:var(--signal);color:#042630;border:0;
+    border-radius:7px;padding:11px 16px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:7px;flex:1}
+  .btn-add:hover{filter:brightness(1.08)}
+  .settings-sep{height:1px;background:var(--line);margin:20px 0 14px}
 
   .presets{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
   .preset-btn{flex:1;min-width:130px;text-align:left;background:var(--panel-2);
@@ -250,7 +258,7 @@
     border-radius:6px;color:var(--text);cursor:pointer;font-size:16px;line-height:1}
   .stepper button:hover{border-color:var(--signal);color:var(--signal)}
 
-  .editor-grid{display:grid;gap:6px;margin-bottom:18px;aspect-ratio:16/9;
+  .editor-grid{display:grid;gap:6px;margin-bottom:18px;aspect-ratio:16/9;min-height:min(58vh,540px);
     background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:6px}
   .cell{background:var(--panel-2);border:1.5px dashed var(--line-bright);border-radius:6px;
     display:flex;align-items:center;justify-content:center;position:relative;
@@ -362,12 +370,28 @@
     font-size:10px;letter-spacing:.06em;color:var(--text-dim);
     white-space:nowrap;overflow:hidden;text-overflow:ellipsis;user-select:none;}
 
+  /* demo tiles */
+  .demo-tile{background:#0b0e13}
+  .demo-tile::before{content:"";position:absolute;inset:0;z-index:0;
+    background:radial-gradient(90% 90% at 30% 25%, var(--dc), transparent 62%);opacity:.35}
+  .demo-body{position:absolute;inset:0;z-index:1;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;gap:12px;color:var(--dc)}
+  .demo-play{width:min(26%,50px);height:auto;opacity:.9;filter:drop-shadow(0 0 14px var(--dc))}
+  .demo-name{font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--text-bright);text-shadow:0 1px 5px rgba(0,0,0,.7)}
+
   /* empty state */
   .empty-state{display:flex;align-items:center;justify-content:center;background:#06080b}
   /* per-stream border color picker */
   .clr-pick{position:relative;width:26px;height:26px;flex:0 0 auto;border-radius:6px;overflow:hidden;cursor:pointer;border:1px solid var(--line-bright)}
   .clr-pick input[type=color]{position:absolute;inset:-4px;width:calc(100% + 8px);height:calc(100% + 8px);border:0;padding:0;margin:0;cursor:pointer;opacity:0}
   .clr-swatch{position:absolute;inset:0;pointer-events:none}
+  /* demo placeholders */
+  .demo-ph{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;position:relative;overflow:hidden}
+  .demo-ph::after{content:"";position:absolute;inset:0;background-image:
+    repeating-linear-gradient(45deg,rgba(255,255,255,.03) 0 2px,transparent 2px 22px);pointer-events:none}
+  .demo-badge{font-family:var(--mono);font-size:10px;letter-spacing:.28em;font-weight:700;opacity:.9}
+  .demo-name{font-family:var(--sans);font-size:clamp(13px,2.4vw,22px);font-weight:700;color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.6);text-align:center;padding:0 10px}
   .es-inner{display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center;padding:24px;max-width:420px}
   .es-inner svg{width:44px;height:44px;color:var(--line-bright)}
   .es-title{font-family:var(--mono);font-size:15px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-bright)}
@@ -376,7 +400,64 @@
     border:0;border-radius:8px;padding:11px 20px;cursor:pointer}
   .es-btn:hover{filter:brightness(1.08)}
 
+  /* edycja układu na widoku głównym */
+  .wall.editing .tile,.wall.editing .ew-empty{cursor:default}
+  .ew-tile{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;overflow:hidden}
+  .ew-tile .ew-name{font-family:var(--sans);font-size:clamp(12px,2vw,18px);font-weight:700;color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.7);cursor:grab;user-select:none;padding:0 8px;text-align:center}
+  .ew-tile .ew-name:active{cursor:grabbing}
+  .ew-ctl{display:flex;align-items:center;gap:5px;flex-wrap:wrap;justify-content:center;
+    background:rgba(6,8,11,.72);border:1px solid var(--line-bright);border-radius:8px;padding:5px 7px}
+  .ew-ctl .ew-lbl{font-family:var(--mono);font-size:10px;color:var(--text-dim);letter-spacing:.1em}
+  .ew-ctl b{font-family:var(--mono);font-size:12px;color:#fff;min-width:12px;text-align:center}
+  .ew-ctl button{width:24px;height:24px;background:var(--panel-2);border:1px solid var(--line-bright);
+    border-radius:5px;color:var(--text);cursor:pointer;font-size:13px;line-height:1}
+  .ew-ctl button:hover{border-color:var(--signal);color:var(--signal)}
+  .ew-ctl .ew-del{color:var(--pgm);font-size:12px}
+  .ew-ctl .ew-del:hover{background:var(--pgm);color:#fff;border-color:var(--pgm)}
+  .ew-empty{background:repeating-linear-gradient(45deg,#0d1016 0 10px,#0a0d12 10px 20px);
+    border:1.5px dashed var(--line-bright)!important;display:flex;align-items:center;justify-content:center}
+  .ew-empty .ew-hint{font-family:var(--mono);font-size:11px;color:#4a5361;letter-spacing:.1em}
+  .tile.dragover,.ew-empty.dragover{outline:2px solid var(--signal);outline-offset:-2px}
+  .ewbar{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:60;
+    display:flex;align-items:center;gap:14px;flex-wrap:wrap;justify-content:center;max-width:96vw;
+    background:var(--panel);border:1px solid var(--line-bright);border-radius:12px;
+    padding:11px 15px;box-shadow:0 12px 44px rgba(0,0,0,.55)}
+  .ewbar .grp{display:flex;align-items:center;gap:7px}
+  .ewbar .lbl{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim)}
+  .ewbar .val{font-family:var(--mono);font-size:14px;color:var(--text-bright);min-width:16px;text-align:center}
+  .ewbar button.st{width:28px;height:28px;background:var(--panel-2);border:1px solid var(--line-bright);border-radius:6px;color:var(--text);cursor:pointer;font-size:15px;line-height:1}
+  .ewbar button.st:hover{border-color:var(--signal);color:var(--signal)}
+  .ewbar .ewpal{display:flex;gap:6px;flex-wrap:wrap;max-width:44vw}
+  .ewbar .ewchip{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;background:var(--panel-2);
+    border:1px solid var(--line-bright);border-radius:6px;font-size:12px;color:var(--text);cursor:grab}
+  .ewbar .ewchip .cd{width:8px;height:8px;border-radius:2px}
+  .ewbar .done{font-size:13px;font-weight:600;background:var(--signal);color:#042630;border:0;border-radius:7px;padding:9px 16px;cursor:pointer}
+  .ewbar .done:hover{filter:brightness(1.08)}
+
   [hidden]{display:none!important}
+  /* timery */
+  .tmr-tile{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(4px,1.4vh,12px);text-align:center;padding:8px}
+  .tmr-name{font-family:var(--sans);font-size:clamp(11px,1.6vw,16px);font-weight:600;color:var(--text);letter-spacing:.02em}
+  .tmr-time{font-family:var(--mono);font-variant-numeric:tabular-nums;font-weight:700;
+    font-size:clamp(28px,9vw,84px);line-height:1;text-shadow:0 2px 12px rgba(0,0,0,.5)}
+  .tmr-time.done{animation:tmrBlink 1s steps(2,start) infinite}
+  @keyframes tmrBlink{50%{opacity:.25}}
+  .tmr-sub{font-family:var(--mono);font-size:clamp(10px,1.3vw,14px);color:var(--text-dim);letter-spacing:.1em;text-transform:uppercase}
+  .tmr-ctl{display:flex;gap:7px}
+  .tmr-ctl button{font-family:var(--sans);font-size:12px;font-weight:600;background:rgba(6,8,11,.7);
+    border:1px solid var(--line-bright);border-radius:7px;color:var(--text);cursor:pointer;padding:7px 14px}
+  .tmr-ctl button:hover{border-color:var(--signal);color:#fff}
+  .tmr-fields{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .tmr-hms{display:flex;align-items:center;gap:3px}
+  .tmr-hms input{width:44px;background:var(--bg);border:1px solid var(--line-bright);border-radius:5px;
+    color:var(--text-bright);padding:6px 4px;font-family:var(--mono);font-size:13px;outline:none;text-align:center;-moz-appearance:textfield}
+  .tmr-hms input::-webkit-outer-spin-button,.tmr-hms input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+  .tmr-hms input:focus{border-color:var(--signal)}
+  .tmr-hms span{color:var(--text-dim);font-family:var(--mono)}
+  .seg.tmr-mode{display:flex;border:1px solid var(--line-bright);border-radius:6px;overflow:hidden}
+  .seg.tmr-mode button{font-size:11px;background:transparent;color:var(--text-dim);border:0;padding:6px 10px;cursor:pointer;border-right:1px solid var(--line)}
+  .seg.tmr-mode button:last-child{border-right:0}
+  .seg.tmr-mode button[aria-pressed="true"]{background:var(--signal-dim);color:var(--signal)}
   @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,45,33,.5)}70%{box-shadow:0 0 0 6px rgba(255,45,33,0)}100%{box-shadow:0 0 0 0 rgba(255,45,33,0)}}
   @media (prefers-reduced-motion:reduce){.brand .rec{animation:none}}
 
@@ -435,9 +516,10 @@
   </div>
   <div class="drawer-body" id="settingsBody"></div>
   <div class="credit" data-i18n="credit">made by mosiuu</div>
-  <div class="drawer-foot">
-    <button class="btn-ghost" id="addStudio" data-i18n="addCustom">+ Dodaj własny link</button>
-    <button class="btn-primary" data-close data-i18n="done">Gotowe</button>
+  <div class="drawer-foot" style="flex-wrap:wrap">
+    <button class="btn-add" id="addStudio" data-i18n="addCustom">+ Dodaj podgląd (link)</button>
+    <button class="btn-add" id="addTimer" data-i18n="addTimer">+ Dodaj timer</button>
+    <button class="btn-ghost" data-close data-i18n="done">Gotowe</button>
   </div>
 </aside>
 
@@ -465,6 +547,10 @@
       </button>
     </div>
     <div id="customEditor">
+      <button class="size-toggle" id="editWallBtn" style="border-color:var(--signal);background:var(--signal-dim);color:var(--text-bright);width:100%;justify-content:center;margin-bottom:14px">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+        <span data-i18n="editOnScreen">Edytuj na widoku głównym</span>
+      </button>
       <div class="steppers">
         <div class="stepper"><span class="lbl" data-i18n="cols">Kolumny</span>
           <button data-step="cols" data-d="-1">–</button><span class="val" id="colsVal">3</span><button data-step="cols" data-d="1">+</button>
@@ -503,6 +589,7 @@ const DEFAULTS = () => ({
 let state = DEFAULTS();
 let unlocked = true;       // brak linków domyślnych — edycja otwarta
 let activeAudioId = null;  // która scena ma dźwięk
+let editWall = false;      // edycja układu własnego na widoku głównym
 
 function loadState(){ try{ const s=JSON.parse(localStorage.getItem(STORE)); if(s&&s.sources) state=s; }catch(e){} if(!state.lang) state.lang="pl"; if(!state.layout.order) state.layout.order=[]; if(!state.layout.sizes) state.layout.sizes={}; if(state.borderPx==null) state.borderPx=2; }
 function saveState(){ try{ localStorage.setItem(STORE, JSON.stringify(state)); }catch(e){} }
@@ -514,15 +601,15 @@ const I18N={
     audioSolo:"Audio — solo", audMuted:"wyciszone",
     audHint:"Wszystkie kafelki startują wyciszone. Kliknij scenę, aby ją usłyszeć (wymaga wtyczki EWC Audio w Chrome).",
     muteAll:"Wycisz wszystko", audNoTiles:"Brak grających kafelków — włącz sceny z adresem.",
-    settings:"Ustawienia", grpMain:"Stage'y główne", grpSecondary:"Secondary stage'y", grpStudio:"Twoje podglądy",
+    settings:"Ustawienia", grpMain:"Stage'y główne", grpSecondary:"Secondary stage'y", grpStudio:"Twoje podglądy", grpTimer:"Timery", addTimer:"+ Dodaj timer", timerName:"Timer", tmrStart:"Start", tmrPause:"Pauza", tmrReset:"Reset", tmrDown:"Odliczanie", tmrUp:"W górę", tmrClock:"Do godziny", tmrToLabel:"do", timerLabel:"Etykieta timera",
     lockedMsg:"Domyślne linki są zablokowane", unlockedMsg:"Edycja domyślnych linków odblokowana",
     unlock:"Odblokuj", lock:"Zablokuj", phName:"Nazwa sceny", phUrl:"https://… adres podglądu, YouTube, Twitch lub Kick", titleDel:"Usuń link",
     note:'Aby oglądać linki produkcyjne, musisz być w tej samej sieci co produkcja (to samo WiFi).',
-    emptyTitle:"Brak podglądów", emptySub:"Dodaj YouTube, Twitch, Kick, Spotify lub Apple Music — wklej link w ustawieniach.", emptyBtn:"Dodaj podgląd", copyright:"© 2026 mosiuu · Wszelkie prawa zastrzeżone · Kopiowanie i rozpowszechnianie zabronione", borderColor:"Kolor ramki", borderWidthTitle:"Grubość ramek", borderWidthDesc:"Grubość obramowania każdego kafelka (0 = brak).", fillTitle:"Wypełnij kafelki", fillDesc:"Obraz wypełnia cały kafelek — bez czarnych pasów, ale przycina brzegi kadru.", resetBtn:"Wyczyść wszystkie podglądy", addCustom:"+ Dodaj podgląd (link)", done:"Gotowe", credit:"made by mosiuu",
+    emptyTitle:"Brak podglądów", emptySub:"Dodaj YouTube, Twitch, Kick, Spotify lub Apple Music — wklej link w ustawieniach.", emptyBtn:"Dodaj podgląd", copyright:"© 2026 mosiuu · Wszelkie prawa zastrzeżone · Kopiowanie i rozpowszechnianie zabronione", borderColor:"Kolor ramki", borderWidthTitle:"Grubość ramek", borderWidthDesc:"Grubość obramowania każdego kafelka (0 = brak).", demoTitle:"Tryb demo", demoDesc:"Podglądowe kafelki zamiast streamów — do projektowania układu, ramek i wyglądu bez dodawania linków.", fillTitle:"Wypełnij kafelki", fillDesc:"Obraz wypełnia cały kafelek — bez czarnych pasów, ale przycina brzegi kadru.", resetBtn:"Wyczyść wszystkie podglądy", addCustom:"+ Dodaj podgląd (link)", done:"Gotowe", credit:"made by mosiuu",
     sceneOff:"Scena wyłączona", noUrl:"Brak adresu — dodaj go w ustawieniach (zębatka)",
     tReload:"Odśwież", tFull:"Pełny ekran", tOpen:"Otwórz w nowej karcie", tHide:"Ukryj kafelek (np. offline)", tFill:"Rozciągnij / wypełnij kafelek", tLoop:"Odtwarzanie w pętli (YouTube)",
     layoutTitle:"Układ siatki", presetGridT:"Równa siatka", presetGridD:"Równe kafelki, automatyczny układ", presetFocusT:"Fokus", presetFocusD:"Jeden duży + pasek miniatur", presetColT:"Kolumna", presetColD:"Pionowa lista podglądów", presetRowT:"Rząd", presetRowD:"Poziomy pasek obok siebie", presetCustomT:"Własny", presetCustomD:"Ułóż i skaluj ręcznie",
-    cols:"Kolumny", rows:"Wiersze", dragHint:"Aktywne sceny — przeciągnij na siatkę", dropScene:"upuść scenę", adjustSize:"Dostosuj rozmiar kafelków", pickTile:"Kliknij kafelek na siatce, aby ustawić jego rozmiar", wLbl:"Szerokość", hLbl:"Wysokość",
+    cols:"Kolumny", rows:"Wiersze", dragHint:"Aktywne sceny — przeciągnij na siatkę", dropScene:"upuść scenę", editOnScreen:"Edytuj na widoku głównym", adjustSize:"Dostosuj rozmiar kafelków", pickTile:"Kliknij kafelek na siatce, aby ustawić jego rozmiar", wLbl:"Szerokość", hLbl:"Wysokość",
     applyLayout:"Zastosuj układ", close:"Zamknij", palEmpty:"Brak aktywnych scen — włącz je w ustawieniach.",
     customName:"Własny", promptUnlock:"Podaj hasło, aby edytować domyślne linki:", wrongPass:"Błędne hasło.",
     confirmReset:"Usunąć wszystkie dodane podglądy? Tej operacji nie można cofnąć.",
@@ -533,15 +620,15 @@ const I18N={
     audioSolo:"Audio — solo", audMuted:"muted",
     audHint:"All tiles start muted. Click a scene to hear it (requires the EWC Audio extension in Chrome).",
     muteAll:"Mute all", audNoTiles:"No playing tiles — enable scenes with a URL.",
-    settings:"Settings", grpMain:"Main stages", grpSecondary:"Secondary stages", grpStudio:"Your streams",
+    settings:"Settings", grpMain:"Main stages", grpSecondary:"Secondary stages", grpStudio:"Your streams", grpTimer:"Timers", addTimer:"+ Add timer", timerName:"Timer", tmrStart:"Start", tmrPause:"Pause", tmrReset:"Reset", tmrDown:"Countdown", tmrUp:"Count up", tmrClock:"To time", tmrToLabel:"to", timerLabel:"Timer label",
     lockedMsg:"Default links are locked", unlockedMsg:"Editing default links unlocked",
     unlock:"Unlock", lock:"Lock", phName:"Scene name", phUrl:"https://… preview URL, YouTube, Twitch or Kick", titleDel:"Remove link",
     note:'To watch production links you must be on the same network as the production (same WiFi).',
-    emptyTitle:"No streams yet", emptySub:"Add YouTube, Twitch, Kick, Spotify or Apple Music — paste a link in settings.", emptyBtn:"Add a stream", copyright:"© 2026 mosiuu · All rights reserved · Copying and redistribution prohibited", borderColor:"Border color", borderWidthTitle:"Border thickness", borderWidthDesc:"Border width of each tile (0 = none).", fillTitle:"Fill tiles", fillDesc:"Video fills the whole tile — no black bars, but crops the edges of the frame.", resetBtn:"Clear all streams", addCustom:"+ Add stream (link)", done:"Done", credit:"made by mosiuu",
+    emptyTitle:"No streams yet", emptySub:"Add YouTube, Twitch, Kick, Spotify or Apple Music — paste a link in settings.", emptyBtn:"Add a stream", copyright:"© 2026 mosiuu · All rights reserved · Copying and redistribution prohibited", borderColor:"Border color", borderWidthTitle:"Border thickness", borderWidthDesc:"Border width of each tile (0 = none).", demoTitle:"Demo mode", demoDesc:"Placeholder tiles instead of streams — design the layout, borders and look without adding links.", fillTitle:"Fill tiles", fillDesc:"Video fills the whole tile — no black bars, but crops the edges of the frame.", resetBtn:"Clear all streams", addCustom:"+ Add stream (link)", done:"Done", credit:"made by mosiuu",
     sceneOff:"Scene off", noUrl:"No URL — add it in settings (gear icon)",
     tReload:"Reload", tFull:"Fullscreen", tOpen:"Open in new tab", tHide:"Hide tile (e.g. offline)", tFill:"Stretch / fill tile", tLoop:"Loop playback (YouTube)",
     layoutTitle:"Grid layout", presetGridT:"Even grid", presetGridD:"Equal tiles, auto arranged", presetFocusT:"Focus", presetFocusD:"One large + thumbnail strip", presetColT:"Column", presetColD:"Vertical list of streams", presetRowT:"Row", presetRowD:"Horizontal strip side by side", presetCustomT:"Custom", presetCustomD:"Arrange and resize manually",
-    cols:"Columns", rows:"Rows", dragHint:"Active scenes — drag onto the grid", dropScene:"drop a scene", adjustSize:"Resize tiles", pickTile:"Click a tile on the grid to set its size", wLbl:"Width", hLbl:"Height",
+    cols:"Columns", rows:"Rows", dragHint:"Active scenes — drag onto the grid", dropScene:"drop a scene", editOnScreen:"Edit on main screen", adjustSize:"Resize tiles", pickTile:"Click a tile on the grid to set its size", wLbl:"Width", hLbl:"Height",
     applyLayout:"Apply layout", close:"Close", palEmpty:"No active scenes — enable them in settings.",
     customName:"Custom", promptUnlock:"Enter the password to edit default links:", wrongPass:"Wrong password.",
     confirmReset:"Remove all added streams? This cannot be undone.",
@@ -704,6 +791,17 @@ function icon(n){const p={
   loop:'<path d="M17 2l4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14M7 22l-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/>',
 }[n];return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${p}</svg>`;}
 
+const DEMO_COLORS=["#ff2d21","#46c26a","#e0a33a","#33b5d1","#a06cff","#ff6ba6"];
+function demoColor(i){return DEMO_COLORS[((i%DEMO_COLORS.length)+DEMO_COLORS.length)%DEMO_COLORS.length];}
+
+// ---------- timery ----------
+const timerState={};
+function durOf(src){ return (src.h||0)*3600+(src.m||0)*60+(src.s||0); }
+function timerInit(src){ if(!timerState[src.id]) timerState[src.id]={left: src.mode==="up"?0:durOf(src), running:false}; return timerState[src.id]; }
+function clockRemaining(src){ const now=new Date(); const nowS=now.getHours()*3600+now.getMinutes()*60+now.getSeconds(); return durOf(src)-nowS; }
+function p2(n){ return String(n||0).padStart(2,"0"); }
+function fmtTimer(s){ s=Math.max(0,Math.floor(s)); const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),ss=s%60,p=n=>String(n).padStart(2,"0"); return h>0?`${h}:${p(m)}:${p(ss)}`:`${p(m)}:${p(ss)}`; }
+
 function buildTile(src, index, areaClass){
   const tile=document.createElement("div");
   tile.className=`tile t-${src.type}`+(areaClass?` ${areaClass}`:"")+(src.enabled?"":" off");
@@ -713,9 +811,70 @@ function buildTile(src, index, areaClass){
   if(src.fill) tile.classList.add("fill");
   const idx=String(index).padStart(2,"0");
 
+  if(src.demo){
+    tile.classList.add("demo-tile");
+    tile.style.setProperty("--dc", src.color||"#33b5d1");
+    tile.innerHTML=`<div class="demo-body">
+        <svg class="demo-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+        <div class="demo-name">${esc(src.name)}</div></div>
+      <div class="strip"><span class="tally"><span class="dot"></span></span><span class="name">${esc(src.name)}</span><span class="idx">DEMO</span></div>`;
+    return tile;
+  }
+
   if(!src.enabled){
     tile.innerHTML=`<div class="ph"><div class="big">${esc(src.name)}</div><div class="small">${t("sceneOff")}</div></div>
       <div class="strip"><span class="name">${esc(src.name)}</span><span class="idx">${idx} · OFF</span></div>`;
+    return tile;
+  }
+  if(src.type==="timer"){
+    const col=src.color||"#33b5d1";
+    if(!tile.style.borderColor) tile.style.borderColor=col;
+    tile.dataset.timer=src.id;
+    const wrap=document.createElement("div");wrap.className="tmr-tile";
+    wrap.style.background=`radial-gradient(120% 120% at 50% 15%, ${col}22 0%, #0b0e13 70%)`;
+    if(src.mode==="clock"){
+      const v=clockRemaining(src);
+      wrap.innerHTML=`<div class="tmr-name">${esc(src.name)}</div>
+        <div class="tmr-time${v<0?" done":""}" style="color:${v<0?'#ff2d21':col}">${v<0?'−':''}${fmtTimer(Math.abs(v))}</div>
+        <div class="tmr-sub">${t("tmrToLabel")} ${p2(src.h)}:${p2(src.m)}</div>`;
+    }else{
+      const ts=timerInit(src);
+      wrap.innerHTML=`<div class="tmr-name">${esc(src.name)}</div>
+        <div class="tmr-time${(src.mode!=="up"&&ts.left===0)?" done":""}" style="color:${col}">${fmtTimer(ts.left)}</div>
+        <div class="tmr-ctl">
+          <button data-tc="toggle">${ts.running?t("tmrPause"):t("tmrStart")}</button>
+          <button data-tc="reset">${t("tmrReset")}</button>
+        </div>`;
+    }
+    tile.appendChild(wrap);
+    const tgl=wrap.querySelector('[data-tc="toggle"]');
+    if(tgl) tgl.onclick=()=>{ const ts=timerInit(src); ts.running=!ts.running; tgl.textContent=ts.running?t("tmrPause"):t("tmrStart"); };
+    const rst=wrap.querySelector('[data-tc="reset"]');
+    if(rst) rst.onclick=()=>{
+      const ts=timerInit(src); ts.left=src.mode==="up"?0:durOf(src); ts.running=false;
+      const te=wrap.querySelector(".tmr-time"); te.textContent=fmtTimer(ts.left); te.classList.remove("done");
+      if(tgl) tgl.textContent=t("tmrStart");
+    };
+    const ctl=document.createElement("div");ctl.className="tctl";
+    ctl.innerHTML=`<button data-a="hide" title="${t("tHide")}">${icon("hide")}</button>`;
+    ctl.querySelector('[data-a="hide"]').onclick=()=>{src.enabled=false;saveState();renderWall();};
+    tile.appendChild(ctl);
+    return tile;
+  }
+  if(src.demo){
+    const col=src.color||demoColor(index-1);
+    if(!tile.style.borderColor) tile.style.borderColor=col;
+    const ph=document.createElement("div");ph.className="demo-ph";
+    ph.style.background=`radial-gradient(120% 120% at 30% 20%, ${col}55 0%, ${col}18 45%, #0b0e13 100%)`;
+    ph.innerHTML=`<span class="demo-badge" style="color:${col}">DEMO</span><span class="demo-name">${esc(src.name)}</span>`;
+    tile.appendChild(ph);
+    const ctl=document.createElement("div");ctl.className="tctl";
+    ctl.innerHTML=`<button data-a="hide" title="${t("tHide")}">${icon("hide")}</button>`;
+    ctl.querySelector('[data-a="hide"]').onclick=()=>{src.enabled=false;saveState();renderWall();};
+    tile.appendChild(ctl);
+    const strip=document.createElement("div");strip.className="strip";
+    strip.innerHTML=`<span class="tally"><span class="dot" style="background:${col};box-shadow:0 0 7px ${col}"></span></span><span class="name">${esc(src.name)}</span><span class="idx">${idx}</span>`;
+    tile.appendChild(strip);
     return tile;
   }
   if(src.url){
@@ -768,6 +927,8 @@ function renderWall(){
   wall.style.gridTemplateColumns="";wall.style.gridTemplateRows="";
   wall.style.gridAutoRows="";wall.style.gridAutoFlow="";
   const m=state.layout.mode;
+
+  if(editWall){ renderWallEdit(); return; }
 
   if(!state.sources.some(s=>s.enabled)){
     wall.style.gridTemplateColumns="1fr";wall.style.gridTemplateRows="1fr";
@@ -833,9 +994,89 @@ function presetArrange(mode, ids){
   return {cols, rows, items:ids.map((id,i)=>({id, c:i%cols, r:Math.floor(i/cols), w:1, h:1}))};
 }
 
+function renderWallEdit(){
+  const wall=document.getElementById("wall");
+  wall.innerHTML="";wall.className="wall editing";
+  ensureCells();
+  const cols=Math.max(1,state.layout.cols||3), rows=Math.max(1,state.layout.rows||2);
+  wall.style.gridTemplateColumns=`repeat(${cols},1fr)`;
+  wall.style.gridTemplateRows=`repeat(${rows},1fr)`;
+  wall.style.gridAutoRows="";wall.style.gridAutoFlow="";
+  const cells=state.layout.cells, sizes=state.layout.sizes;
+  const {placed,covered}=computeLayout(cols,rows,cells,sizes);
+  const startMap={}; placed.forEach(p=>startMap[p.i]=p);
+
+  for(let i=0;i<cols*rows;i++){
+    if(covered.has(i)) continue;
+    const r=Math.floor(i/cols), c=i%cols, p=startMap[i];
+    const cell=document.createElement("div");
+    cell.dataset.i=i;
+    if(p){
+      const src=byId(p.id), col=src.color||demoColor(i);
+      cell.className="tile ew-tile";
+      cell.style.gridColumn=`${c+1} / span ${p.w}`;
+      cell.style.gridRow=`${r+1} / span ${p.h}`;
+      cell.style.borderColor=col;cell.style.borderWidth=(state.borderPx!=null?state.borderPx:2)+"px";
+      cell.style.background=`radial-gradient(120% 120% at 30% 20%, ${col}44 0%, ${col}12 45%, #0b0e13 100%)`;
+      cell.innerHTML=`<span class="ew-name" draggable="true">${esc(src.name)}</span>
+        <div class="ew-ctl">
+          <span class="ew-lbl">W</span><button data-sz="w" data-d="-1">–</button><b>${p.w}</b><button data-sz="w" data-d="1">+</button>
+          <span class="ew-lbl">H</span><button data-sz="h" data-d="-1">–</button><b>${p.h}</b><button data-sz="h" data-d="1">+</button>
+          <button class="ew-del" title="${t("titleDel")}">✕</button>
+        </div>`;
+      cell.querySelectorAll("[data-sz]").forEach(btn=>{ btn.onclick=e=>{
+        e.stopPropagation();
+        const k=btn.dataset.sz,d=parseInt(btn.dataset.d,10);
+        const cur=sizes[p.id]||{w:1,h:1}, nw={w:cur.w||1,h:cur.h||1};
+        const max=k==="w"?cols:rows;
+        nw[k]=Math.max(1,Math.min(max,(nw[k]||1)+d));
+        sizes[p.id]=nw; saveState(); renderWallEdit();
+      };});
+      cell.querySelector(".ew-del").onclick=e=>{e.stopPropagation();cells[i]=null;delete sizes[p.id];saveState();renderWallEdit();};
+      cell.querySelector(".ew-name").addEventListener("dragstart",e=>{dragId=p.id;dragFrom=i;e.dataTransfer.effectAllowed="move";});
+    }else{
+      cell.className="tile ew-empty";
+      cell.style.gridColumn=`${c+1}`;cell.style.gridRow=`${r+1}`;
+      cell.innerHTML=`<span class="ew-hint">${t("dropScene")}</span>`;
+    }
+    cell.addEventListener("dragover",e=>{e.preventDefault();cell.classList.add("dragover");});
+    cell.addEventListener("dragleave",()=>cell.classList.remove("dragover"));
+    cell.addEventListener("drop",e=>{
+      e.preventDefault();cell.classList.remove("dragover");
+      if(!dragId)return;
+      const existing=cells.indexOf(dragId);
+      if(dragFrom!==null){ const tmp=cells[i];cells[i]=dragId;cells[dragFrom]=tmp; }
+      else{ if(startMap[i]){dragId=null;return;} if(existing>-1)cells[existing]=null; cells[i]=dragId; if(!sizes[dragId])sizes[dragId]={w:1,h:1}; }
+      dragId=null;dragFrom=null; saveState(); renderWallEdit();
+    });
+    wall.appendChild(cell);
+  }
+  buildEditBar();
+  afterWall();
+}
+
+function buildEditBar(){
+  let bar=document.getElementById("ewbar");
+  if(!bar){ bar=document.createElement("div"); bar.id="ewbar"; bar.className="ewbar"; document.body.appendChild(bar); }
+  const placedIds=new Set(state.layout.cells.filter(Boolean));
+  const avail=state.sources.filter(s=>s.enabled && !placedIds.has(s.id));
+  const chips=avail.map(s=>`<span class="ewchip" draggable="true" data-id="${s.id}"><span class="cd" style="background:${s.color||'#33b5d1'}"></span>${esc(s.name)}</span>`).join("");
+  bar.innerHTML=`
+    <div class="grp"><span class="lbl">${t("cols")}</span><button class="st" data-ew="cols" data-d="-1">–</button><span class="val">${state.layout.cols}</span><button class="st" data-ew="cols" data-d="1">+</button></div>
+    <div class="grp"><span class="lbl">${t("rows")}</span><button class="st" data-ew="rows" data-d="-1">–</button><span class="val">${state.layout.rows}</span><button class="st" data-ew="rows" data-d="1">+</button></div>
+    ${chips?`<div class="ewpal">${chips}</div>`:""}
+    <button class="done" id="ewDone">${t("done")}</button>`;
+  bar.querySelectorAll("[data-ew]").forEach(b=>b.onclick=()=>{
+    const k=b.dataset.ew,d=parseInt(b.dataset.d,10);
+    state.layout[k]=Math.min(12,Math.max(1,(state.layout[k]||1)+d));
+    ensureCells(); saveState(); renderWallEdit();
+  });
+  bar.querySelectorAll(".ewchip").forEach(ch=>ch.addEventListener("dragstart",e=>{dragId=ch.dataset.id;dragFrom=null;e.dataTransfer.effectAllowed="copy";}));
+  bar.querySelector("#ewDone").onclick=()=>{ editWall=false; const b=document.getElementById("ewbar"); if(b) b.remove(); renderWall(); };
+}
+
 function emptyTile(){
   const e=document.createElement("div");e.className="tile";e.style.background="#0a0c10";
-  e.innerHTML=`<div class="ph off"><div class="big" style="color:#333c49">—</div></div>`;
   return e;
 }
 
@@ -933,7 +1174,7 @@ function promptUnlock(){
 
 function renderSettings(){
   const body=document.getElementById("settingsBody");
-  const groups=[["main",t("grpMain")],["secondary",t("grpSecondary")],["studio",t("grpStudio")]];
+  const groups=[["main",t("grpMain")],["secondary",t("grpSecondary")],["studio",t("grpStudio")],["timer",t("grpTimer")]];
   const lockBanner=`<div class="lockbar ${unlocked?"open":""}">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${unlocked
       ?'<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/>'
@@ -951,21 +1192,37 @@ function renderSettings(){
     if(!list.length) return;
     html+=`<div class="group-label"><span class="tag ${type}"></span>${label}</div>`;
     list.forEach(s=>{
+      const midField = s.type==="timer"
+        ? `<div class="tmr-fields">
+             <div class="tmr-hms">
+               <input data-th="h" type="number" min="0" max="99" value="${s.h||0}"><span>:</span>
+               <input data-th="m" type="number" min="0" max="59" value="${p2(s.m)}">${s.mode==="clock"?"":`<span>:</span><input data-th="s" type="number" min="0" max="59" value="${p2(s.s)}">`}
+             </div>
+             <div class="seg tmr-mode">
+               <button data-tmode="down" aria-pressed="${(!s.mode||s.mode==='down')}">${t("tmrDown")}</button>
+               <button data-tmode="up" aria-pressed="${s.mode==='up'}">${t("tmrUp")}</button>
+               <button data-tmode="clock" aria-pressed="${s.mode==='clock'}">${t("tmrClock")}</button>
+             </div>
+           </div>`
+        : `<input class="url" data-k="url" value="${esc(s.url)}" placeholder="${t("phUrl")}" spellcheck="false"${(!unlocked && !s.id.startsWith("cst"))?" disabled":""}>`;
       html+=`<div class="src ${s.enabled?"":"disabled"}" data-id="${s.id}">
         <label class="switch"><input type="checkbox" data-k="enabled" ${s.enabled?"checked":""}><span class="track"></span><span class="thumb"></span></label>
         <div class="src-main">
-          <input class="name" data-k="name" value="${esc(s.name)}" placeholder="${t("phName")}">
-          <input class="url" data-k="url" value="${esc(s.url)}" placeholder="${t("phUrl")}" spellcheck="false"${(!unlocked && !s.id.startsWith("cst"))?" disabled":""}>
+          <input class="name" data-k="name" value="${esc(s.name)}" placeholder="${s.type==="timer"?t("timerLabel"):t("phName")}">
+          ${midField}
         </div>
         <label class="clr-pick" title="${t("borderColor")}"><input type="color" data-k="color" value="${s.color||'#33b5d1'}"><span class="clr-swatch" style="background:${s.color||'#33b5d1'}"></span></label>
-        ${s.id.startsWith("cst")?`<button class="del" data-del title="${t("titleDel")}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m2 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg></button>`:""}
+        ${(s.id.startsWith("cst")||s.type==="timer")?`<button class="del" data-del title="${t("titleDel")}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m2 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg></button>`:""}
       </div>`;
     });
   });
   body.innerHTML=html+`
     <div class="note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01"/><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
       <div>${t("note")}</div></div>
-    <button class="btn-ghost" id="resetDefaults" style="width:100%;margin-top:14px">${t("resetBtn")}</button>`;
+    <div class="settings-sep"></div>
+    <button class="btn-danger" id="resetDefaults" style="width:100%">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m2 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>
+      ${t("resetBtn")}</button>`;
 
   const ft=body.querySelector("#fillToggle");
   if(ft) ft.onchange=()=>{ state.fillTiles=ft.checked; saveState(); renderWall(); };
@@ -1007,6 +1264,19 @@ function renderSettings(){
         row.classList.toggle("disabled",!src.enabled);
         saveState();renderWall();
       });
+    });
+    row.querySelectorAll("[data-th]").forEach(inp=>inp.addEventListener("change",()=>{
+      const src=byId(id), k=inp.dataset.th;
+      let v=parseInt(inp.value,10)||0; v=Math.max(0, k==="h"?Math.min(99,v):Math.min(59,v));
+      src[k]=v; inp.value=k==="h"?v:p2(v);
+      if(timerState[id]){ timerState[id].left=src.mode==="up"?0:durOf(src); timerState[id].running=false; }
+      saveState();renderWall();
+    }));
+    row.querySelectorAll("[data-tmode]").forEach(btn=>btn.onclick=()=>{
+      const src=byId(id); src.mode=btn.dataset.tmode;
+      if(src.mode==="clock") src.s=0;
+      if(timerState[id]){ timerState[id].left=src.mode==="up"?0:durOf(src); timerState[id].running=false; }
+      saveState();renderSettings();renderWall();
     });
   });
 }
@@ -1167,6 +1437,12 @@ document.getElementById("addStudio").onclick=()=>{
   state.sources.push({id:"cst"+Date.now(),name:t("customName")+" "+n,type:"studio",url:"",enabled:true});
   saveState();renderSettings();
 };
+document.getElementById("addTimer").onclick=()=>{
+  const n=state.sources.filter(s=>s.type==="timer").length+1;
+  const cols=DEMO_COLORS;
+  state.sources.push({id:"tmr"+Date.now(),name:t("timerName")+" "+n,type:"timer",mode:"down",h:0,m:5,s:0,enabled:true,color:cols[(n-1)%cols.length]});
+  saveState();renderSettings();renderWall();
+};
 
 document.querySelectorAll(".preset-btn").forEach(b=>b.onclick=()=>{
   state.layout.mode=b.dataset.preset;
@@ -1187,6 +1463,12 @@ document.getElementById("sizeToggle").onclick=()=>{
   renderEditor();
 };
 document.getElementById("applyLayout").onclick=()=>{saveState();renderWall();closeDrawers();};
+document.getElementById("editWallBtn").onclick=()=>{
+  state.layout.mode="custom";
+  ensureCells();
+  if(state.layout.cells.every(c=>!c)) activeSources().forEach((s,i)=>{if(i<state.layout.cells.length)state.layout.cells[i]=s.id;});
+  editWall=true; saveState(); closeDrawers(); renderWall();
+};
 
 const started=Date.now();
 function tick(){
@@ -1195,6 +1477,22 @@ function tick(){
   document.getElementById("clkS").textContent=p(d.getSeconds());
   const loc=state.lang==="en"?"en-GB":"pl-PL";
   document.getElementById("clkDate").textContent=d.toLocaleDateString(loc,{weekday:"long",day:"numeric",month:"long",year:"numeric"});
+  state.sources.forEach(src=>{
+    if(src.type!=="timer"||!src.enabled) return;
+    const te=document.querySelector(`[data-timer="${src.id}"] .tmr-time`);
+    if(!te) return;
+    if(src.mode==="clock"){
+      const v=clockRemaining(src);
+      te.textContent=(v<0?'−':'')+fmtTimer(Math.abs(v));
+      te.classList.toggle("done", v<0);
+      te.style.color = v<0 ? '#ff2d21' : (src.color||'#33b5d1');
+    }else{
+      const ts=timerState[src.id]; if(!ts||!ts.running) return;
+      if(src.mode==="up") ts.left+=1; else { ts.left=Math.max(0,ts.left-1); if(ts.left===0) ts.running=false; }
+      te.textContent=fmtTimer(ts.left); te.classList.toggle("done", src.mode!=="up" && ts.left===0);
+      const tg=te.parentElement.querySelector('[data-tc="toggle"]'); if(tg && !ts.running) tg.textContent=t("tmrStart");
+    }
+  });
 }
 setInterval(tick,1000);tick();
 
