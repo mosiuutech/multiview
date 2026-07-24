@@ -2,8 +2,15 @@
 <html lang="pl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Multiview — reżyserka</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0a0c10">
+<meta name="description" content="Multiview — reżyserka: wiele podglądów wideo (YouTube, Twitch, Kick, Spotify, Apple Music) na jednym ekranie, z układami, timerami i sterowaniem audio.">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Multiview</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='4' fill='%230a0c10'/%3E%3Crect x='4' y='5' width='7' height='6' rx='1' fill='%23ff2d21'/%3E%3Crect x='13' y='5' width='7' height='6' rx='1' fill='%2346c26a'/%3E%3Crect x='4' y='13' width='7' height='6' rx='1' fill='%23e0a33a'/%3E%3Crect x='13' y='13' width='7' height='6' rx='1' fill='%2335b9d6'/%3E%3C/svg%3E">
+<!-- Lucide (ISC) — przy braku sieci wchodzi zestaw awaryjny w app.js -->
+<script src="https://cdn.jsdelivr.net/npm/lucide@0.544.0/dist/umd/lucide.min.js" defer></script>
 <style>
   :root{
     --bg:#0a0c10;
@@ -357,7 +364,7 @@
   @keyframes introOut{to{opacity:0;visibility:hidden}}
   @keyframes introShine{to{transform:translateX(120%)}}
   @keyframes introLine{from{width:0;opacity:0}to{width:min(340px,64vw);opacity:1}}
-  .wall-wrap,.header,.page-foot{animation:appReveal .8s ease 1.9s both;}
+  body.with-intro .wall-wrap,body.with-intro .header,body.with-intro .page-foot{animation:appReveal .8s ease 1.9s both;}
   @keyframes appReveal{from{opacity:0}to{opacity:1}}
   @media (prefers-reduced-motion:reduce){
     #intro{animation:introOut .3s ease 1s forwards}
@@ -468,15 +475,181 @@
       grid-template-areas:"s1 s2" "s3 s4" "sec1 sec2" "sec3 sec3";}
     .brand{padding:0 12px;font-size:11px}
   }
+
+  /* ============ IKONY ============ */
+  [data-lucide],svg.lucide{display:inline-block;vertical-align:middle;flex:0 0 auto;
+    width:16px;height:16px;stroke-width:2;stroke:currentColor;fill:none}
+  .ico-sm[data-lucide],svg.ico-sm{width:14px;height:14px}
+  .ico-lg[data-lucide],svg.ico-lg{width:20px;height:20px}
+  .ico-xl[data-lucide],svg.ico-xl{width:44px;height:44px}
+  .btn svg.lucide{width:15px;height:15px}
+  .tctl svg.lucide{width:14px;height:14px}
+  .xbtn svg.lucide{width:18px;height:18px}
+
+  /* ============ WARSTWA NAKŁADKI ============ */
+  .wall-wrap{position:relative}
+  .wall-overlay{position:absolute;inset:0;z-index:5;background:#06080b;display:grid}
+  .wall-overlay[hidden]{display:none!important}
+  .wall.dimmed{visibility:hidden}
+  .tile[hidden]{display:none!important}
+
+  /* ============ STATUS KAFELKA (BRAK SYGNAŁU / ŁADOWANIE) ============ */
+  .tstatus{position:absolute;inset:0;z-index:4;display:none;flex-direction:column;
+    align-items:center;justify-content:center;gap:10px;text-align:center;padding:16px;
+    background:rgba(6,8,11,.92);color:var(--text-dim);font-size:12px;line-height:1.45}
+  .tile.tile-error .tstatus,.tile.tile-loading .tstatus{display:flex}
+  .tstatus svg{width:26px;height:26px;color:var(--aux)}
+  .tile.tile-loading .tstatus svg{color:var(--signal);animation:spin 1.1s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .tstatus .ts-title{font-family:var(--mono);font-size:11px;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--text)}
+  .tstatus .ts-sub{max-width:240px}
+  .tstatus button{background:var(--panel-2);border:1px solid var(--line-bright);color:var(--text);
+    border-radius:6px;padding:7px 13px;font-size:12px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+  .tstatus button:hover{border-color:var(--signal);color:var(--text-bright)}
+  .strip .aud-lvl{font-family:var(--mono);font-size:9px;color:var(--signal);flex:0 0 auto}
+
+  /* ============ GŁOŚNOŚĆ W PANELU AUDIO ============ */
+  .ab-vol{display:flex;align-items:center;gap:9px;padding-top:2px}
+  .ab-vol input[type=range]{flex:1;accent-color:var(--signal);cursor:pointer;min-width:140px}
+  .ab-vol .vv{font-family:var(--mono);font-size:11px;color:var(--text-bright);min-width:34px;text-align:right}
+  .ab-note{font-size:11px;color:var(--text-dim);line-height:1.45;display:flex;gap:7px;align-items:flex-start}
+  .ab-note svg{width:13px;height:13px;color:var(--aux);margin-top:2px}
+  .ab-note[hidden]{display:none!important}
+  .ab-pill.no-ctl{opacity:.62}
+  .ab-pill.no-ctl.on{opacity:1;border-color:var(--aux);background:rgba(224,163,58,.13)}
+  .ab-pill.no-ctl.on .dot{background:var(--aux);box-shadow:0 0 8px var(--aux)}
+
+  /* ============ INSTRUKCJA ============ */
+  .help h3{margin:22px 0 8px;font-family:var(--mono);font-size:11px;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--signal);display:flex;align-items:center;gap:8px}
+  .help h3:first-child{margin-top:0}
+  .help p{margin:0 0 10px;font-size:13px;line-height:1.6;color:var(--text)}
+  .help ul{margin:0 0 12px;padding-left:18px}
+  .help li{font-size:13px;line-height:1.6;margin-bottom:5px}
+  .help b{color:var(--text-bright)}
+  .help code{font-family:var(--mono);font-size:11.5px;background:var(--panel-2);
+    border:1px solid var(--line);border-radius:4px;padding:1px 5px;color:var(--signal)}
+  .help .hbox{background:var(--panel-2);border:1px solid var(--line);border-radius:8px;
+    padding:12px 14px;margin:0 0 14px;font-size:12.5px;line-height:1.6;color:var(--text-dim)}
+  .help .hbox b{color:var(--text)}
+  kbd{font-family:var(--mono);font-size:11px;background:var(--panel-3);color:var(--text-bright);
+    border:1px solid var(--line-bright);border-bottom-width:2px;border-radius:5px;
+    padding:2px 7px;display:inline-block;min-width:22px;text-align:center}
+  .keys{display:grid;grid-template-columns:auto 1fr;gap:8px 14px;align-items:center;margin-bottom:14px}
+  .keys .kd{font-size:12.5px;color:var(--text)}
+
+  /* ============ EKSPORT / IMPORT / UDOSTĘPNIANIE ============ */
+  .io-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+  .io-row button{flex:1;min-width:132px;display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    font-size:12.5px;background:var(--panel-2);border:1px solid var(--line-bright);color:var(--text);
+    border-radius:7px;padding:10px 12px;cursor:pointer}
+  .io-row button:hover{border-color:var(--signal);color:var(--text-bright)}
+
+  /* ============ WALIDACJA LINKU ============ */
+  .url-hint{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;
+    display:flex;align-items:center;gap:5px;color:var(--text-dim);min-height:14px}
+  .url-hint.ok{color:var(--pvw)} .url-hint.warn{color:var(--aux)} .url-hint.bad{color:var(--pgm)}
+  .url-hint svg{width:12px;height:12px}
+
+  /* ============ TOAST ============ */
+  .toast{position:fixed;left:50%;bottom:22px;transform:translate(-50%,14px);z-index:300;
+    background:var(--panel);border:1px solid var(--line-bright);border-radius:10px;
+    padding:11px 16px;font-size:13px;color:var(--text-bright);display:flex;align-items:center;gap:9px;
+    box-shadow:0 12px 40px rgba(0,0,0,.6);opacity:0;pointer-events:none;transition:opacity .18s,transform .18s}
+  .toast.show{opacity:1;transform:translate(-50%,0)}
+  .toast svg{color:var(--signal)}
+  .toast.bad svg{color:var(--pgm)}
+
+  /* ============ PRZECIĄGANIE PALCEM (TOUCH) ============ */
+  .drag-ghost{position:fixed;z-index:400;pointer-events:none;padding:7px 12px;border-radius:7px;
+    background:var(--panel);border:1px solid var(--signal);color:var(--text-bright);
+    font-size:12.5px;font-weight:600;box-shadow:0 8px 26px rgba(0,0,0,.6);transform:translate(-50%,-140%)}
+  .chip,.ewchip,.cname,.ew-name{touch-action:none}
+
+  /* ============ DROBIAZGI ============ */
+  .intro-skip{position:absolute;bottom:26px;left:50%;transform:translateX(-50%);
+    background:transparent;border:0;color:var(--text-dim);font-size:11px;letter-spacing:.14em;
+    text-transform:uppercase;font-family:var(--mono);cursor:pointer;padding:8px 14px}
+  .intro-skip:hover{color:var(--text-bright)}
+  .h-actions .btn.on{border-color:var(--signal);color:var(--signal);background:var(--signal-dim)}
+  .switch-row{display:flex;align-items:center;gap:12px;padding:11px 12px;margin-bottom:7px;
+    background:var(--panel-2);border:1px solid var(--line);border-radius:8px}
+  .switch-row .sr-main{flex:1;min-width:0}
+  .switch-row .sr-t{font-size:12.5px;font-weight:600;color:var(--text-bright)}
+  .switch-row .sr-d{font-size:11.5px;color:var(--text-dim);line-height:1.4}
+  .drag-handle{color:var(--text-dim);cursor:grab;padding:2px;line-height:0}
+  .drag-handle:active{cursor:grabbing}
+  :focus-visible{outline:2px solid var(--signal);outline-offset:2px}
+  @media (max-width:820px){
+    .ewbar{gap:9px;padding:9px 11px}
+    .ewbar .ewpal{max-width:90vw}
+    .drawer.wide{width:100vw}
+    .keys{grid-template-columns:1fr;gap:4px 0}
+    .keys .kd{margin-bottom:8px}
+  }
+
+  /* ============ PRESETY WIDOKU ============ */
+  .presetbar{flex:0 0 auto;display:flex;align-items:center;gap:7px;flex-wrap:wrap;
+    padding:7px 12px;background:var(--panel);border-bottom:1px solid var(--line)}
+  .presetbar[hidden]{display:none!important}
+  .pchip{display:inline-flex;align-items:center;gap:8px;padding:6px 12px 6px 7px;
+    background:var(--panel-2);border:1px solid var(--line-bright);border-radius:7px;
+    color:var(--text);font-size:12.5px;font-weight:500;cursor:pointer;
+    transition:border-color .12s,color .12s;max-width:230px}
+  .pchip:hover{border-color:var(--signal);color:var(--text-bright)}
+  .pchip .pnum{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--text-dim);
+    background:var(--panel-3);border-radius:4px;padding:2px 6px;flex:0 0 auto}
+  .pchip .pname{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .pchip.on{border-color:var(--signal);background:var(--signal-dim);color:var(--text-bright)}
+  .pchip.on .pnum{background:var(--signal);color:#042630}
+  .pchip.dirty{border-color:var(--aux)}
+  .pchip.dirty .pnum{background:var(--aux);color:#2a1d05}
+  .pchip .pdot{width:6px;height:6px;border-radius:50%;background:var(--aux);
+    box-shadow:0 0 7px var(--aux);flex:0 0 auto}
+  .padd{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;
+    background:transparent;border:1px dashed var(--line-bright);border-radius:7px;
+    color:var(--text-dim);cursor:pointer}
+  .padd:hover{border-color:var(--signal);color:var(--signal);border-style:solid}
+  .pdirty{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--aux);margin-left:2px}
+
+  .pset-desc{font-size:12.5px;color:var(--text-dim);line-height:1.5;margin-bottom:12px}
+  .pset-empty{font-size:12.5px;color:var(--text-dim);line-height:1.5;padding:12px 13px;
+    background:var(--panel-2);border:1px dashed var(--line-bright);border-radius:8px}
+  .pset{display:flex;align-items:center;gap:7px;padding:8px 10px;margin-bottom:7px;
+    background:var(--panel-2);border:1px solid var(--line);border-radius:8px}
+  .pset.on{border-color:var(--signal);background:var(--signal-dim)}
+  .pset-apply{flex:0 0 auto;background:var(--panel-3);border:1px solid var(--line-bright);
+    border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--text)}
+  .pset-apply:hover{border-color:var(--signal);color:var(--signal)}
+  .pset.on .pset-apply{background:var(--signal);border-color:var(--signal)}
+  .pset-num{font-family:var(--mono);font-size:11px;font-weight:700}
+  .pset.on .pset-num{color:#042630}
+  .pset-name{flex:1;min-width:0;background:var(--bg);border:1px solid var(--line-bright);
+    border-radius:5px;color:var(--text-bright);padding:6px 9px;font-family:var(--sans);
+    font-size:12.5px;font-weight:600;outline:none}
+  .pset-name:focus{border-color:var(--signal)}
+  .pset-flag{font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--aux);flex:0 0 auto}
+  .pset-btn{flex:0 0 auto;background:transparent;border:1px solid transparent;border-radius:6px;
+    color:var(--text-dim);cursor:pointer;padding:5px;line-height:0}
+  .pset-btn:hover{color:var(--signal);border-color:var(--line-bright)}
+  .pset-btn.del:hover{color:#fff;background:var(--pgm);border-color:var(--pgm)}
+  @media (max-width:820px){
+    .presetbar{padding:6px 8px;gap:5px}
+    .pchip{max-width:150px;font-size:12px}
+  }
 </style>
 </head>
 <body>
 
-<div id="intro">
+<div id="intro" hidden>
   <div class="intro-inner">
     <div class="intro-logo"><span class="intro-dot"></span>MULTIVIEW</div>
     <div class="intro-line"></div>
   </div>
+  <button class="intro-skip" id="introSkip">skip</button>
 </div>
 
 <header class="header">
@@ -490,45 +663,87 @@
   <div class="h-cell spacer"></div>
   <div class="h-cell h-actions">
     <div class="langseg" id="langseg"><button data-lang="pl">PL</button><button data-lang="en">EN</button></div>
-    <button class="btn" id="openLayout" data-i18n-title="titleLayout" title="Ułóż siatkę">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-      <span data-i18n="btnLayout">Układ</span>
+    <button class="btn" id="openLayout" data-i18n-title="titleLayout" data-i18n-aria="titleLayout">
+      <i data-lucide="layout-grid"></i><span data-i18n="btnLayout">Układ</span>
     </button>
-    <button class="btn" id="reloadAll" data-i18n-title="titleReload" title="Odśwież wszystkie podglądy">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+    <button class="btn" id="openAudio" data-i18n-title="titleAudio" data-i18n-aria="titleAudio" aria-pressed="false">
+      <i data-lucide="volume-2"></i><span data-i18n="btnAudio">Audio</span>
     </button>
-    <button class="btn" id="openSettings" data-i18n-title="titleSettings" title="Ustawienia">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    <button class="btn" id="reloadAll" data-i18n-title="titleReload" data-i18n-aria="titleReload">
+      <i data-lucide="rotate-cw"></i>
+    </button>
+    <button class="btn" id="fullWall" data-i18n-title="titleFullscreen" data-i18n-aria="titleFullscreen">
+      <i data-lucide="maximize"></i>
+    </button>
+    <button class="btn" id="openHelp" data-i18n-title="titleHelp" data-i18n-aria="titleHelp">
+      <i data-lucide="circle-help"></i>
+    </button>
+    <button class="btn" id="openSettings" data-i18n-title="titleSettings" data-i18n-aria="titleSettings">
+      <i data-lucide="settings"></i>
     </button>
   </div>
 </header>
 
-<main class="wall-wrap"><div class="wall preset" id="wall"></div></main>
+<div class="presetbar" id="presetbar" hidden role="toolbar" aria-label="Presety"></div>
 
-<footer class="page-foot" data-i18n="copyright">© 2026 mosiuu · Wszelkie prawa zastrzeżone · Kopiowanie i rozpowszechnianie zabronione</footer>
+<main class="wall-wrap">
+  <div class="wall preset" id="wall"></div>
+  <div class="wall-overlay" id="wallOverlay" hidden></div>
+</main>
+
+<footer class="page-foot" data-i18n="copyright">© 2026 mosiuu · Multiview</footer>
 
 <div class="scrim" id="scrim"></div>
 
-<aside class="drawer" id="settingsDrawer" aria-hidden="true">
+<!-- panel audio -->
+<div class="audiobar" id="audiobar" hidden role="region" aria-label="Audio">
+  <div class="ab-head">
+    <i data-lucide="volume-2" class="ico-sm"></i>
+    <span data-i18n="audioSolo">Audio — solo</span> · <b id="abActive">—</b>
+    <button class="ab-x" id="abClose" data-i18n-aria="close"><i data-lucide="x"></i></button>
+  </div>
+  <div class="ab-list" id="abList"></div>
+  <div class="ab-vol" id="abVol" hidden>
+    <i data-lucide="volume-1" class="ico-sm"></i>
+    <input type="range" id="abVolRange" min="0" max="100" step="1" value="100" data-i18n-aria="volume">
+    <span class="vv" id="abVolVal">100%</span>
+  </div>
+  <div class="ab-note" id="abNote" hidden></div>
+  <div class="ab-foot">
+    <div class="ab-hint" id="abHint" data-i18n="audHint"></div>
+    <button class="ab-mute" id="abMuteAll"><i data-lucide="volume-x" class="ico-sm"></i> <span data-i18n="muteAll">Wycisz wszystko</span></button>
+  </div>
+</div>
+
+<!-- ustawienia -->
+<aside class="drawer" id="settingsDrawer" aria-hidden="true" role="dialog" aria-modal="true">
   <div class="drawer-head">
     <h2 data-i18n="settings">Ustawienia</h2>
-    <button class="xbtn" data-close><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    <button class="xbtn" data-close data-i18n-aria="close"><i data-lucide="x"></i></button>
   </div>
   <div class="drawer-body" id="settingsBody"></div>
   <div class="credit" data-i18n="credit">made by mosiuu</div>
   <div class="drawer-foot" style="flex-wrap:wrap">
-    <button class="btn-add" id="addStudio" data-i18n="addCustom">+ Dodaj podgląd (link)</button>
-    <button class="btn-add" id="addTimer" data-i18n="addTimer">+ Dodaj timer</button>
+    <button class="btn-add" id="addStudio"><i data-lucide="plus"></i> <span data-i18n="addCustom">Dodaj podgląd</span></button>
+    <button class="btn-add" id="addTimer"><i data-lucide="timer"></i> <span data-i18n="addTimer">Dodaj timer</span></button>
     <button class="btn-ghost" data-close data-i18n="done">Gotowe</button>
   </div>
 </aside>
 
-<aside class="drawer wide" id="layoutDrawer" aria-hidden="true">
+<!-- układ -->
+<aside class="drawer wide" id="layoutDrawer" aria-hidden="true" role="dialog" aria-modal="true">
   <div class="drawer-head">
     <h2 data-i18n="layoutTitle">Układ siatki</h2>
-    <button class="xbtn" data-close><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    <button class="xbtn" data-close data-i18n-aria="close"><i data-lucide="x"></i></button>
   </div>
   <div class="drawer-body">
+    <div class="group-label"><i data-lucide="bookmark"></i><span data-i18n="presetsTitle">Presety widoku</span></div>
+    <div class="pset-desc" data-i18n="presetsDesc"></div>
+    <div id="presetList"></div>
+    <button class="btn-add" id="savePresetBtn" style="width:100%;margin:12px 0 6px">
+      <i data-lucide="bookmark"></i><span data-i18n="savePreset">Zapisz obecny widok</span></button>
+    <div class="settings-sep"></div>
+
     <div class="presets">
       <button class="preset-btn" data-preset="grid">
         <div class="pt" data-i18n="presetGridT">Równa siatka</div><div class="pd" data-i18n="presetGridD">Równe kafelki, automatyczny układ</div>
@@ -548,20 +763,22 @@
     </div>
     <div id="customEditor">
       <button class="size-toggle" id="editWallBtn" style="border-color:var(--signal);background:var(--signal-dim);color:var(--text-bright);width:100%;justify-content:center;margin-bottom:14px">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
-        <span data-i18n="editOnScreen">Edytuj na widoku głównym</span>
+        <i data-lucide="pencil"></i><span data-i18n="editOnScreen">Edytuj na widoku głównym</span>
       </button>
       <div class="steppers">
         <div class="stepper"><span class="lbl" data-i18n="cols">Kolumny</span>
-          <button data-step="cols" data-d="-1">–</button><span class="val" id="colsVal">3</span><button data-step="cols" data-d="1">+</button>
+          <button data-step="cols" data-d="-1" aria-label="-"><i data-lucide="minus" class="ico-sm"></i></button>
+          <span class="val" id="colsVal">3</span>
+          <button data-step="cols" data-d="1" aria-label="+"><i data-lucide="plus" class="ico-sm"></i></button>
         </div>
         <div class="stepper" id="rowsStepper"><span class="lbl" data-i18n="rows">Wiersze</span>
-          <button data-step="rows" data-d="-1">–</button><span class="val" id="rowsVal">2</span><button data-step="rows" data-d="1">+</button>
+          <button data-step="rows" data-d="-1" aria-label="-"><i data-lucide="minus" class="ico-sm"></i></button>
+          <span class="val" id="rowsVal">2</span>
+          <button data-step="rows" data-d="1" aria-label="+"><i data-lucide="plus" class="ico-sm"></i></button>
         </div>
       </div>
       <button class="size-toggle" id="sizeToggle" aria-expanded="false">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
-        <span data-i18n="adjustSize">Dostosuj rozmiar kafelków</span>
+        <i data-lucide="scaling"></i><span data-i18n="adjustSize">Dostosuj rozmiar kafelków</span>
       </button>
       <div class="size-bar" id="sizeBar" hidden></div>
       <div class="editor-grid" id="editorGrid"></div>
@@ -575,199 +792,494 @@
   </div>
 </aside>
 
+<!-- instrukcja -->
+<aside class="drawer" id="helpDrawer" aria-hidden="true" role="dialog" aria-modal="true">
+  <div class="drawer-head">
+    <h2 data-i18n="helpTitle">Instrukcja</h2>
+    <button class="xbtn" data-close data-i18n-aria="close"><i data-lucide="x"></i></button>
+  </div>
+  <div class="drawer-body help" id="helpBody"></div>
+  <div class="drawer-foot">
+    <button class="btn-primary" data-close data-i18n="done">Gotowe</button>
+  </div>
+</aside>
+
+<div class="toast" id="toast" role="status" aria-live="polite"><i data-lucide="check"></i><span id="toastMsg"></span></div>
+<input type="file" id="importFile" accept="application/json,.json" hidden>
+
 <script>
 "use strict";
-const STORE = "multiview.pub1";
 
-const DEFAULTS = () => ({
-  sources: [],
-  layout: {mode:"grid", cols:3, rows:2, cells:[], order:[], sizes:{}},
-  lang: "pl",
-  borderPx: 2,
+const STORE   = "multiview.pub1";
+const SCHEMA  = 2;
+
+const DEFAULT_OPTS = () => ({
+  autoRetry : true,   // sam ponawiaj kafelki, które nie wstały
+  keepAwake : true,   // Wake Lock — ekran nie gaśnie
+  showIntro : true,   // ekran powitalny (i tak tylko raz na przeglądarkę)
+  locked    : false,  // blokada przed przypadkową edycją (NIE jest zabezpieczeniem)
 });
 
-let state = DEFAULTS();
-let unlocked = true;       // brak linków domyślnych — edycja otwarta
-let activeAudioId = null;  // która scena ma dźwięk
-let editWall = false;      // edycja układu własnego na widoku głównym
+const DEFAULTS = () => ({
+  v: SCHEMA,
+  sources: [],
+  layout: {mode:"grid", cols:3, rows:2, cells:[], order:[], sizes:{}},
+  presets: [],          // zapisane widoki — patrz sekcja PRESETY
+  activePreset: null,
+  lang: "pl",
+  borderPx: 2,
+  vol: 100,
+  opts: DEFAULT_OPTS(),
+});
 
-function loadState(){ try{ const s=JSON.parse(localStorage.getItem(STORE)); if(s&&s.sources) state=s; }catch(e){} if(!state.lang) state.lang="pl"; if(!state.layout.order) state.layout.order=[]; if(!state.layout.sizes) state.layout.sizes={}; if(state.borderPx==null) state.borderPx=2; }
-function saveState(){ try{ localStorage.setItem(STORE, JSON.stringify(state)); }catch(e){} }
+let state          = DEFAULTS();
+let activeAudioId  = null;   // która scena ma dźwięk
+let editWall       = false;  // edycja układu na widoku głównym
+let wakeLock       = null;
 
+/* --- stan: zapis / odczyt --- */
+
+// Sprowadza dane z localStorage do poprawnego kształtu.
+function sanitizeState(raw){
+  const d = DEFAULTS();
+  if(!raw || typeof raw!=="object") return d;
+
+  const okType = t => ["main","secondary","studio","timer"].includes(t);
+  const s = Array.isArray(raw.sources) ? raw.sources : [];
+  d.sources = s.filter(x=>x && typeof x==="object" && typeof x.id==="string").map(x=>({
+    id      : String(x.id),
+    name    : typeof x.name==="string" ? x.name.slice(0,120) : "—",
+    type    : okType(x.type) ? x.type : "studio",
+    url     : typeof x.url==="string" ? x.url.slice(0,2000) : "",
+    enabled : x.enabled!==false,
+    color   : safeColor(x.color) || null,
+    fill    : !!x.fill,
+    loop    : x.loop!==false,
+    demo    : !!x.demo,
+    mode    : ["down","up","clock"].includes(x.mode) ? x.mode : (x.type==="timer" ? "down" : undefined),
+    h       : clampInt(x.h,0,99), m: clampInt(x.m,0,59), s: clampInt(x.s,0,59),
+    run     : (x.run && typeof x.run==="object")
+                ? {status:["idle","running","paused"].includes(x.run.status)?x.run.status:"idle",
+                   startedAt:Number(x.run.startedAt)||0, accumMs:Math.max(0,Number(x.run.accumMs)||0)}
+                : {status:"idle", startedAt:0, accumMs:0},
+  }));
+
+  const L = raw.layout && typeof raw.layout==="object" ? raw.layout : {};
+  const ids = new Set(d.sources.map(x=>x.id));
+  d.layout = {
+    mode  : ["grid","focus","column","row","custom"].includes(L.mode) ? L.mode : "grid",
+    cols  : clampInt(L.cols,1,12) || 3,
+    rows  : clampInt(L.rows,1,12) || 2,
+    cells : Array.isArray(L.cells) ? L.cells.map(c=> (typeof c==="string" && ids.has(c)) ? c : null) : [],
+    order : Array.isArray(L.order) ? L.order.filter(c=>ids.has(c)) : [],
+    sizes : {},
+  };
+  if(L.sizes && typeof L.sizes==="object"){
+    for(const k of Object.keys(L.sizes)){
+      if(!ids.has(k)) continue;
+      const v = L.sizes[k]||{};
+      d.layout.sizes[k] = {w:clampInt(v.w,1,12)||1, h:clampInt(v.h,1,12)||1};
+    }
+  }
+
+  d.presets = (Array.isArray(raw.presets)?raw.presets:[])
+    .filter(p=>p && typeof p==="object" && typeof p.id==="string")
+    .slice(0,24)
+    .map(p=>{
+      const L = p.layout && typeof p.layout==="object" ? p.layout : {};
+      const en = {};
+      if(p.enabled && typeof p.enabled==="object")
+        for(const k of Object.keys(p.enabled)) if(ids.has(k)) en[k]=!!p.enabled[k];
+      const sizes={};
+      if(L.sizes && typeof L.sizes==="object")
+        for(const k of Object.keys(L.sizes)){
+          if(!ids.has(k)) continue;
+          const v=L.sizes[k]||{};
+          sizes[k]={w:clampInt(v.w,1,12)||1, h:clampInt(v.h,1,12)||1};
+        }
+      return {
+        id: String(p.id),
+        name: typeof p.name==="string" ? p.name.slice(0,60) : "—",
+        layout: {
+          mode : ["grid","focus","column","row","custom"].includes(L.mode) ? L.mode : "grid",
+          cols : clampInt(L.cols,1,12)||3,
+          rows : clampInt(L.rows,1,12)||2,
+          cells: Array.isArray(L.cells) ? L.cells.map(c=>(typeof c==="string"&&ids.has(c))?c:null) : [],
+          order: [],
+          sizes,
+        },
+        enabled: en,
+      };
+    });
+  d.activePreset = (typeof raw.activePreset==="string" && d.presets.some(p=>p.id===raw.activePreset))
+                     ? raw.activePreset : null;
+
+  d.lang     = raw.lang==="en" ? "en" : "pl";
+  d.borderPx = clampInt(raw.borderPx,0,8); if(d.borderPx===null) d.borderPx=2;
+  d.vol      = clampInt(raw.vol,0,100); if(d.vol===null) d.vol=100;
+  d.opts     = Object.assign(DEFAULT_OPTS(), (raw.opts&&typeof raw.opts==="object")?raw.opts:{});
+  d.v        = SCHEMA;
+  return d;
+}
+
+function clampInt(v,min,max){
+  const n = parseInt(v,10);
+  if(!Number.isFinite(n)) return null;
+  return Math.max(min, Math.min(max, n));
+}
+// Kolor trafia do atrybutu style — przepuszczamy tylko hex.
+function safeColor(c){
+  return (typeof c==="string" && /^#[0-9a-fA-F]{3,8}$/.test(c)) ? c : null;
+}
+
+function loadState(){
+  let raw = null;
+  try{ raw = JSON.parse(localStorage.getItem(STORE)); }
+  catch(e){ console.warn("Multiview: nieczytelny zapis w localStorage — startuję od zera.", e); }
+  state = sanitizeState(raw);
+}
+function saveState(){
+  try{ localStorage.setItem(STORE, JSON.stringify(state)); }
+  catch(e){ console.warn("Multiview: nie udało się zapisać stanu.", e); }
+}
+
+/* ---------- teksty (PL / EN) ---------- */
 const I18N={
   pl:{
-    session:"Sesja", btnLayout:"Układ", btnAudio:"Audio",
-    titleReload:"Odśwież wszystkie podglądy", titleLayout:"Ułóż siatkę", titleAudio:"Panel audio", titleSettings:"Ustawienia",
-    audioSolo:"Audio — solo", audMuted:"wyciszone",
-    audHint:"Wszystkie kafelki startują wyciszone. Kliknij scenę, aby ją usłyszeć (wymaga wtyczki EWC Audio w Chrome).",
+    btnLayout:"Układ", btnAudio:"Audio",
+    titleReload:"Odśwież wszystkie podglądy", titleLayout:"Ułóż siatkę", titleAudio:"Panel audio",
+    titleSettings:"Ustawienia", titleHelp:"Instrukcja", titleFullscreen:"Pełny ekran całej ściany",
+    audioSolo:"Audio — solo", audMuted:"wyciszone", volume:"Głośność",
+    audHint:"Kafelki startują wyciszone. Kliknij scenę, aby ją usłyszeć. YouTube sterowany jest natywnie, Twitch i Kick przez przeładowanie kafelka.",
     muteAll:"Wycisz wszystko", audNoTiles:"Brak grających kafelków — włącz sceny z adresem.",
-    settings:"Ustawienia", grpMain:"Stage'y główne", grpSecondary:"Secondary stage'y", grpStudio:"Twoje podglądy", grpTimer:"Timery", addTimer:"+ Dodaj timer", timerName:"Timer", tmrStart:"Start", tmrPause:"Pauza", tmrReset:"Reset", tmrDown:"Odliczanie", tmrUp:"W górę", tmrClock:"Do godziny", tmrToLabel:"do", timerLabel:"Etykieta timera",
-    lockedMsg:"Domyślne linki są zablokowane", unlockedMsg:"Edycja domyślnych linków odblokowana",
-    unlock:"Odblokuj", lock:"Zablokuj", phName:"Nazwa sceny", phUrl:"https://… adres podglądu, YouTube, Twitch lub Kick", titleDel:"Usuń link",
-    note:'Aby oglądać linki produkcyjne, musisz być w tej samej sieci co produkcja (to samo WiFi).',
-    emptyTitle:"Brak podglądów", emptySub:"Dodaj YouTube, Twitch, Kick, Spotify lub Apple Music — wklej link w ustawieniach.", emptyBtn:"Dodaj podgląd", copyright:"© 2026 mosiuu · Wszelkie prawa zastrzeżone · Kopiowanie i rozpowszechnianie zabronione", borderColor:"Kolor ramki", borderWidthTitle:"Grubość ramek", borderWidthDesc:"Grubość obramowania każdego kafelka (0 = brak).", demoTitle:"Tryb demo", demoDesc:"Podglądowe kafelki zamiast streamów — do projektowania układu, ramek i wyglądu bez dodawania linków.", fillTitle:"Wypełnij kafelki", fillDesc:"Obraz wypełnia cały kafelek — bez czarnych pasów, ale przycina brzegi kadru.", resetBtn:"Wyczyść wszystkie podglądy", addCustom:"+ Dodaj podgląd (link)", done:"Gotowe", credit:"made by mosiuu",
-    sceneOff:"Scena wyłączona", noUrl:"Brak adresu — dodaj go w ustawieniach (zębatka)",
-    tReload:"Odśwież", tFull:"Pełny ekran", tOpen:"Otwórz w nowej karcie", tHide:"Ukryj kafelek (np. offline)", tFill:"Rozciągnij / wypełnij kafelek", tLoop:"Odtwarzanie w pętli (YouTube)",
-    layoutTitle:"Układ siatki", presetGridT:"Równa siatka", presetGridD:"Równe kafelki, automatyczny układ", presetFocusT:"Fokus", presetFocusD:"Jeden duży + pasek miniatur", presetColT:"Kolumna", presetColD:"Pionowa lista podglądów", presetRowT:"Rząd", presetRowD:"Poziomy pasek obok siebie", presetCustomT:"Własny", presetCustomD:"Ułóż i skaluj ręcznie",
-    cols:"Kolumny", rows:"Wiersze", dragHint:"Aktywne sceny — przeciągnij na siatkę", dropScene:"upuść scenę", editOnScreen:"Edytuj na widoku głównym", adjustSize:"Dostosuj rozmiar kafelków", pickTile:"Kliknij kafelek na siatce, aby ustawić jego rozmiar", wLbl:"Szerokość", hLbl:"Wysokość",
+    audNoCtl:"Dźwiękiem tego odtwarzacza sterujesz tylko na kafelku",
+    audReloadHint:"Włączenie dźwięku przeładuje ten kafelek",
+    audExt:"Sceny spoza znanych serwisów są w innej domenie — przeglądarka nie pozwala stronie ruszyć ich dźwięku. Głośność ustawisz tylko w samym odtwarzaczu, na kafelku.",
+    settings:"Ustawienia", grpMain:"Stage'y główne", grpSecondary:"Secondary stage'y",
+    grpStudio:"Twoje podglądy", grpTimer:"Timery", addTimer:"Dodaj timer", timerName:"Timer",
+    tmrStart:"Start", tmrPause:"Pauza", tmrReset:"Reset", tmrDown:"Odliczanie", tmrUp:"W górę",
+    tmrClock:"Do godziny", tmrToLabel:"do", timerLabel:"Etykieta timera",
+    lockedMsg:"Blokada edycji włączona — pola są tylko do odczytu",
+    unlockedMsg:"Edycja odblokowana", unlock:"Odblokuj", lock:"Zablokuj",
+    phName:"Nazwa sceny", phUrl:"https://… adres podglądu, YouTube, Twitch lub Kick", titleDel:"Usuń",
+    note:"Aby oglądać linki produkcyjne, musisz być w tej samej sieci co produkcja (to samo WiFi).",
+    emptyTitle:"Brak podglądów",
+    emptySub:"Dodaj YouTube, Twitch, Kick, Spotify lub Apple Music — wklej link w ustawieniach.",
+    emptyBtn:"Dodaj podgląd", emptyHelp:"Otwórz instrukcję",
+    copyright:"© 2026 mosiuu · Multiview",
+    borderColor:"Kolor ramki", borderWidthTitle:"Grubość ramek",
+    borderWidthDesc:"Grubość obramowania każdego kafelka (0 = brak).",
+    resetBtn:"Wyczyść wszystkie podglądy", addCustom:"Dodaj podgląd", done:"Gotowe", credit:"made by mosiuu",
+    sceneOff:"Scena wyłączona", noUrl:"Brak adresu — dodaj go w ustawieniach",
+    tReload:"Odśwież", tFull:"Pełny ekran", tOpen:"Otwórz w nowej karcie",
+    tHide:"Ukryj kafelek (np. offline)", tFill:"Rozciągnij / wypełnij kafelek", tLoop:"Odtwarzanie w pętli (YouTube)",
+    layoutTitle:"Układ siatki", presetGridT:"Równa siatka", presetGridD:"Równe kafelki, automatyczny układ",
+    presetFocusT:"Fokus", presetFocusD:"Jeden duży + pasek miniatur",
+    presetColT:"Kolumna", presetColD:"Pionowa lista podglądów",
+    presetRowT:"Rząd", presetRowD:"Poziomy pasek obok siebie",
+    presetCustomT:"Własny", presetCustomD:"Ułóż i skaluj ręcznie",
+    cols:"Kolumny", rows:"Wiersze", dragHint:"Aktywne sceny — przeciągnij na siatkę",
+    dropScene:"upuść scenę", editOnScreen:"Edytuj na widoku głównym",
+    adjustSize:"Dostosuj rozmiar kafelków", pickTile:"Kliknij kafelek na siatce, aby ustawić jego rozmiar",
+    wLbl:"Szerokość", hLbl:"Wysokość",
     applyLayout:"Zastosuj układ", close:"Zamknij", palEmpty:"Brak aktywnych scen — włącz je w ustawieniach.",
-    customName:"Własny", promptUnlock:"Podaj hasło, aby edytować domyślne linki:", wrongPass:"Błędne hasło.",
-    confirmReset:"Usunąć wszystkie dodane podglądy? Tej operacji nie można cofnąć.",
+    customName:"Własny", confirmReset:"Usunąć wszystkie dodane podglądy? Tej operacji nie można cofnąć.",
+    // --- nowe ---
+    ioTitle:"Konfiguracja", exportBtn:"Eksportuj plik", importBtn:"Importuj plik", copyLink:"Kopiuj link",
+    exported:"Zapisano plik z konfiguracją.", imported:"Wczytano konfigurację.",
+    importErr:"Nie udało się wczytać pliku — to nie jest poprawna konfiguracja Multiview.",
+    linkCopied:"Link skopiowany do schowka.", linkErr:"Nie udało się skopiować linku.",
+    confirmLoadShared:"Ten link zawiera gotową konfigurację. Wczytać ją? Obecne ustawienia zostaną zastąpione.",
+    sharedLoaded:"Wczytano konfigurację z linku.",
+    optsTitle:"Zachowanie", autoRetryT:"Automatyczne ponawianie",
+    autoRetryD:"Kafelek, który się nie załadował, spróbuje ponownie po kilkunastu sekundach.",
+    keepAwakeT:"Nie wygaszaj ekranu", keepAwakeD:"Blokuje usypianie ekranu na czas realizacji (Wake Lock).",
+    lockT:"Blokada edycji", lockD:"Chroni przed przypadkową zmianą adresów. To wygoda, nie zabezpieczenie — konfiguracja i tak jest po stronie przeglądarki.",
+    noSignal:"Brak sygnału", noSignalSub:"Kafelek się nie załadował. Serwis może blokować osadzanie albo transmisja nie trwa.",
+    retry:"Spróbuj ponownie", loadingT:"Ładowanie…",
+    urlOk:"Rozpoznano", urlUnknown:"Nieznany serwis — osadzę adres bez zmian", urlEmpty:"Brak adresu",
+    helpTitle:"Instrukcja", kbdTitle:"Skróty klawiszowe",
+    presetsTitle:"Presety widoku", presetsDesc:"Zapisany układ razem z tym, które sceny są włączone. Przełączasz jednym kliknięciem albo Shift + numer.",
+    savePreset:"Zapisz obecny widok", presetNamePh:"Nazwa presetu", presetDefault:"Widok",
+    applyPreset:"Zastosuj ten widok", updatePreset:"Nadpisz obecnym widokiem",
+    deletePreset:"Usuń preset", moveUp:"W górę", moveDown:"W dół",
+    presetSaved:"Zapisano preset.", presetUpdated:"Preset nadpisany.", presetDeleted:"Preset usunięty.",
+    presetDirty:"zmieniony", presetDirtyTitle:"Widok różni się od zapisanego presetu — nadpisz go albo przełącz preset ponownie, żeby wrócić.",
+    noPresets:"Nie masz jeszcze presetów. Ustaw ścianę tak, jak chcesz, i kliknij „Zapisz obecny widok\u201d.",
+    confirmDelPreset:"Usunąć ten preset? Sceny i układ na ścianie zostaną bez zmian.",
+    presetLimit:"Maksymalnie 24 presety.",
+    kbdAltT:"Modyfikator zamiast gołego klawisza",
+    kbdAltD:"Każdą akcję odpalisz też kombinacją %C — na przykład %CS otwiera ustawienia, a %C4 przełącza czwarty preset. Przydaje się, gdy wolisz nie ryzykować przypadkowego wciśnięcia.",
+    kbdMacT:"Czego celowo nie przechwytujemy",
+    kbdMacD:"⌘R, ⌘S, ⌘F, ⌘L i ⌘1–9 zostają przy przeglądarce. ⌘R przeładowałoby całą stronę w środku transmisji, a ⌘1–9 przełącza karty — odbieranie ich byłoby proszeniem się o kłopoty.",
+    kbdLayout:"Skróty siedzą na fizycznych klawiszach, więc działają tak samo na układzie polskim, US i AZERTY. Cyfry czytamy też z klawiatury numerycznej.",
+    tVol:"Głośność tej sceny",
   },
   en:{
-    session:"Session", btnLayout:"Layout", btnAudio:"Audio",
-    titleReload:"Reload all previews", titleLayout:"Arrange grid", titleAudio:"Audio panel", titleSettings:"Settings",
-    audioSolo:"Audio — solo", audMuted:"muted",
-    audHint:"All tiles start muted. Click a scene to hear it (requires the EWC Audio extension in Chrome).",
+    btnLayout:"Layout", btnAudio:"Audio",
+    titleReload:"Reload all previews", titleLayout:"Arrange grid", titleAudio:"Audio panel",
+    titleSettings:"Settings", titleHelp:"Instructions", titleFullscreen:"Fullscreen the whole wall",
+    audioSolo:"Audio — solo", audMuted:"muted", volume:"Volume",
+    audHint:"Tiles start muted. Click a scene to hear it. YouTube is controlled natively, Twitch and Kick by reloading the tile.",
     muteAll:"Mute all", audNoTiles:"No playing tiles — enable scenes with a URL.",
-    settings:"Settings", grpMain:"Main stages", grpSecondary:"Secondary stages", grpStudio:"Your streams", grpTimer:"Timers", addTimer:"+ Add timer", timerName:"Timer", tmrStart:"Start", tmrPause:"Pause", tmrReset:"Reset", tmrDown:"Countdown", tmrUp:"Count up", tmrClock:"To time", tmrToLabel:"to", timerLabel:"Timer label",
-    lockedMsg:"Default links are locked", unlockedMsg:"Editing default links unlocked",
-    unlock:"Unlock", lock:"Lock", phName:"Scene name", phUrl:"https://… preview URL, YouTube, Twitch or Kick", titleDel:"Remove link",
-    note:'To watch production links you must be on the same network as the production (same WiFi).',
-    emptyTitle:"No streams yet", emptySub:"Add YouTube, Twitch, Kick, Spotify or Apple Music — paste a link in settings.", emptyBtn:"Add a stream", copyright:"© 2026 mosiuu · All rights reserved · Copying and redistribution prohibited", borderColor:"Border color", borderWidthTitle:"Border thickness", borderWidthDesc:"Border width of each tile (0 = none).", demoTitle:"Demo mode", demoDesc:"Placeholder tiles instead of streams — design the layout, borders and look without adding links.", fillTitle:"Fill tiles", fillDesc:"Video fills the whole tile — no black bars, but crops the edges of the frame.", resetBtn:"Clear all streams", addCustom:"+ Add stream (link)", done:"Done", credit:"made by mosiuu",
-    sceneOff:"Scene off", noUrl:"No URL — add it in settings (gear icon)",
-    tReload:"Reload", tFull:"Fullscreen", tOpen:"Open in new tab", tHide:"Hide tile (e.g. offline)", tFill:"Stretch / fill tile", tLoop:"Loop playback (YouTube)",
-    layoutTitle:"Grid layout", presetGridT:"Even grid", presetGridD:"Equal tiles, auto arranged", presetFocusT:"Focus", presetFocusD:"One large + thumbnail strip", presetColT:"Column", presetColD:"Vertical list of streams", presetRowT:"Row", presetRowD:"Horizontal strip side by side", presetCustomT:"Custom", presetCustomD:"Arrange and resize manually",
-    cols:"Columns", rows:"Rows", dragHint:"Active scenes — drag onto the grid", dropScene:"drop a scene", editOnScreen:"Edit on main screen", adjustSize:"Resize tiles", pickTile:"Click a tile on the grid to set its size", wLbl:"Width", hLbl:"Height",
+    audNoCtl:"Control this player's sound on the tile itself",
+    audReloadHint:"Turning sound on will reload this tile",
+    audExt:"Scenes outside the known services live on another domain — the browser will not let the page touch their sound. Set the volume in the player itself, on the tile.",
+    settings:"Settings", grpMain:"Main stages", grpSecondary:"Secondary stages",
+    grpStudio:"Your streams", grpTimer:"Timers", addTimer:"Add timer", timerName:"Timer",
+    tmrStart:"Start", tmrPause:"Pause", tmrReset:"Reset", tmrDown:"Countdown", tmrUp:"Count up",
+    tmrClock:"To time", tmrToLabel:"to", timerLabel:"Timer label",
+    lockedMsg:"Edit lock is on — fields are read-only",
+    unlockedMsg:"Editing unlocked", unlock:"Unlock", lock:"Lock",
+    phName:"Scene name", phUrl:"https://… preview URL, YouTube, Twitch or Kick", titleDel:"Remove",
+    note:"To watch production links you must be on the same network as the production (same WiFi).",
+    emptyTitle:"No streams yet",
+    emptySub:"Add YouTube, Twitch, Kick, Spotify or Apple Music — paste a link in settings.",
+    emptyBtn:"Add a stream", emptyHelp:"Open instructions",
+    copyright:"© 2026 mosiuu · Multiview",
+    borderColor:"Border color", borderWidthTitle:"Border thickness",
+    borderWidthDesc:"Border width of each tile (0 = none).",
+    resetBtn:"Clear all streams", addCustom:"Add stream", done:"Done", credit:"made by mosiuu",
+    sceneOff:"Scene off", noUrl:"No URL — add it in settings",
+    tReload:"Reload", tFull:"Fullscreen", tOpen:"Open in new tab",
+    tHide:"Hide tile (e.g. offline)", tFill:"Stretch / fill tile", tLoop:"Loop playback (YouTube)",
+    layoutTitle:"Grid layout", presetGridT:"Even grid", presetGridD:"Equal tiles, auto arranged",
+    presetFocusT:"Focus", presetFocusD:"One large + thumbnail strip",
+    presetColT:"Column", presetColD:"Vertical list of streams",
+    presetRowT:"Row", presetRowD:"Horizontal strip side by side",
+    presetCustomT:"Custom", presetCustomD:"Arrange and resize manually",
+    cols:"Columns", rows:"Rows", dragHint:"Active scenes — drag onto the grid",
+    dropScene:"drop a scene", editOnScreen:"Edit on main screen",
+    adjustSize:"Resize tiles", pickTile:"Click a tile on the grid to set its size",
+    wLbl:"Width", hLbl:"Height",
     applyLayout:"Apply layout", close:"Close", palEmpty:"No active scenes — enable them in settings.",
-    customName:"Custom", promptUnlock:"Enter the password to edit default links:", wrongPass:"Wrong password.",
-    confirmReset:"Remove all added streams? This cannot be undone.",
+    customName:"Custom", confirmReset:"Remove all added streams? This cannot be undone.",
+    ioTitle:"Configuration", exportBtn:"Export file", importBtn:"Import file", copyLink:"Copy link",
+    exported:"Configuration file saved.", imported:"Configuration loaded.",
+    importErr:"Could not read the file — it is not a valid Multiview configuration.",
+    linkCopied:"Link copied to clipboard.", linkErr:"Could not copy the link.",
+    confirmLoadShared:"This link carries a ready-made configuration. Load it? Your current setup will be replaced.",
+    sharedLoaded:"Configuration loaded from the link.",
+    optsTitle:"Behaviour", autoRetryT:"Automatic retry",
+    autoRetryD:"A tile that failed to load will try again after a few seconds.",
+    keepAwakeT:"Keep screen awake", keepAwakeD:"Stops the screen from sleeping during a show (Wake Lock).",
+    lockT:"Edit lock", lockD:"Guards against accidental URL changes. Convenience, not security — the config lives in the browser anyway.",
+    noSignal:"No signal", noSignalSub:"The tile did not load. The service may block embedding, or the stream is offline.",
+    retry:"Try again", loadingT:"Loading…",
+    urlOk:"Recognised", urlUnknown:"Unknown service — will embed the URL as-is", urlEmpty:"No URL",
+    helpTitle:"Instructions", kbdTitle:"Keyboard shortcuts",
+    presetsTitle:"View presets", presetsDesc:"A saved layout together with which scenes are on. Switch with one click or Shift + number.",
+    savePreset:"Save current view", presetNamePh:"Preset name", presetDefault:"View",
+    applyPreset:"Apply this view", updatePreset:"Overwrite with current view",
+    deletePreset:"Delete preset", moveUp:"Move up", moveDown:"Move down",
+    presetSaved:"Preset saved.", presetUpdated:"Preset overwritten.", presetDeleted:"Preset deleted.",
+    presetDirty:"modified", presetDirtyTitle:"The view differs from the saved preset — overwrite it, or click the preset again to go back.",
+    noPresets:"No presets yet. Arrange the wall how you want it and click \u201cSave current view\u201d.",
+    confirmDelPreset:"Delete this preset? The scenes and the wall itself stay untouched.",
+    presetLimit:"24 presets maximum.",
+    kbdAltT:"A modifier instead of a bare key",
+    kbdAltD:"Every action also fires with %C — for example %CS opens settings and %C4 switches to the fourth preset. Handy when you would rather not risk hitting a bare key by accident.",
+    kbdMacT:"What we deliberately leave alone",
+    kbdMacD:"⌘R, ⌘S, ⌘F, ⌘L and ⌘1–9 stay with the browser. ⌘R would reload the whole page mid-show and ⌘1–9 switches tabs — taking those over would be asking for trouble.",
+    kbdLayout:"Shortcuts sit on physical keys, so they behave identically on Polish, US and AZERTY layouts. Digits are read from the numeric keypad too.",
+    tVol:"Volume of this scene",
   },
 };
 const t = k => (I18N[state.lang]&&I18N[state.lang][k]) || I18N.pl[k] || k;
 
 const byId = id => state.sources.find(s=>s.id===id);
 const activeSources = () => state.sources.filter(s=>s.enabled);
-const esc = s => String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const typeWord = t => ({main:"PGM",secondary:"PVW",studio:"AUX"}[t]||"—");
+const esc = s => String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
-// ---------- YouTube: zamiana zwykłego linku na adres do osadzenia (embed) ----------
+/* --- ikony --- */
+const FALLBACK_ICONS={
+  "layout-grid":'<rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/>',
+  "volume-2":'<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>',
+  "volume-1":'<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>',
+  "volume-x":'<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="22" y1="9" x2="16" y2="15"/><line x1="16" y1="9" x2="22" y2="15"/>',
+  "rotate-cw":'<path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/>',
+  "rotate-ccw":'<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>',
+  "maximize":'<path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M21 8V5a2 2 0 0 0-2-2h-3"/><path d="M3 16v3a2 2 0 0 0 2 2h3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/>',
+  "expand":'<path d="m15 15 6 6"/><path d="m15 9 6-6"/><path d="M21 16v5h-5"/><path d="M21 8V3h-5"/><path d="M3 16v5h5"/><path d="m3 21 6-6"/><path d="M3 8V3h5"/><path d="M9 9 3 3"/>',
+  "circle-help":'<circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/>',
+  "settings":'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>',
+  "x":'<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
+  "plus":'<path d="M5 12h14"/><path d="M12 5v14"/>',
+  "minus":'<path d="M5 12h14"/>',
+  "timer":'<line x1="10" x2="14" y1="2" y2="2"/><line x1="12" x2="15" y1="14" y2="11"/><circle cx="12" cy="14" r="8"/>',
+  "clock":'<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
+  "pencil":'<path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/>',
+  "scaling":'<path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M16 3h5v5"/><path d="M14 10 21 3"/>',
+  "check":'<path d="M20 6 9 17l-5-5"/>',
+  "trash-2":'<path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/>',
+  "eye-off":'<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><path d="M1 1l22 22"/>',
+  "external-link":'<path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>',
+  "repeat":'<path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/>',
+  "lock":'<rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+  "lock-open":'<rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/>',
+  "triangle-alert":'<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/>',
+  "circle-alert":'<circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/>',
+  "info":'<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>',
+  "download":'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/>',
+  "upload":'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/>',
+  "link":'<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>',
+  "play":'<polygon points="6 3 20 12 6 21 6 3"/>',
+  "pause":'<rect x="14" y="4" width="4" height="16" rx="1"/><rect x="6" y="4" width="4" height="16" rx="1"/>',
+  "grip-vertical":'<circle cx="9" cy="12" r="1"/><circle cx="9" cy="5" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="19" r="1"/>',
+  "keyboard":'<path d="M10 8h.01"/><path d="M12 12h.01"/><path d="M14 8h.01"/><path d="M16 12h.01"/><path d="M18 8h.01"/><path d="M6 8h.01"/><path d="M7 16h10"/><path d="M8 12h.01"/><rect width="20" height="16" x="2" y="4" rx="2"/>',
+  "loader-circle":'<path d="M21 12a9 9 0 1 1-6.219-8.56"/>',
+  "tv":'<rect width="20" height="15" x="2" y="7" rx="2" ry="2"/><polyline points="17 2 12 7 7 2"/>',
+  "share-2":'<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" x2="15.42" y1="13.51" y2="17.49"/><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"/>',
+  "book-open":'<path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/>',
+  "zap":'<path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/>',
+  "sliders-horizontal":'<line x1="21" x2="14" y1="4" y2="4"/><line x1="10" x2="3" y1="4" y2="4"/><line x1="21" x2="12" y1="12" y2="12"/><line x1="8" x2="3" y1="12" y2="12"/><line x1="21" x2="16" y1="20" y2="20"/><line x1="12" x2="3" y1="20" y2="20"/><line x1="14" x2="14" y1="2" y2="6"/><line x1="8" x2="8" y1="10" y2="14"/><line x1="16" x2="16" y1="18" y2="22"/>',
+  "chevron-up":'<path d="m18 15-6-6-6 6"/>',
+  "chevron-down":'<path d="m6 9 6 6 6-6"/>',
+  "save":'<path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7"/><path d="M7 3v4a1 1 0 0 0 1 1h7"/>',
+  "bookmark":'<path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>',
+  "monitor":'<rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/>',
+};
+
+// Gotowy <svg> do wstawienia w string HTML.
+function ico(name, cls){
+  const body = FALLBACK_ICONS[name] || "";
+  return `<svg class="lucide ${cls||""}" viewBox="0 0 24 24" fill="none" stroke="currentColor" `
+       + `stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${body}</svg>`;
+}
+
+// Można wołać wielokrotnie.
+function paintIcons(){
+  if(window.lucide && typeof window.lucide.createIcons==="function"){
+    try{ window.lucide.createIcons(); }catch(e){ /* lecimy dalej na fallbacku */ }
+  }
+  // Reszta: brak CDN albo nieznana nazwa ikony.
+  document.querySelectorAll("[data-lucide]").forEach(el=>{
+    const name = el.getAttribute("data-lucide");
+    const extra = el.className ? " "+el.className : "";
+    const tmp = document.createElement("div");
+    tmp.innerHTML = ico(name, extra.trim());
+    const svg = tmp.firstElementChild;
+    if(svg) el.replaceWith(svg);
+  });
+}
+
+/* ---------- toast ---------- */
+let toastTimer=null;
+function toast(msg, bad){
+  const el=document.getElementById("toast");
+  document.getElementById("toastMsg").textContent=msg;
+  el.classList.toggle("bad", !!bad);
+  el.querySelector("svg,[data-lucide]")?.replaceWith(
+    (()=>{ const d=document.createElement("div"); d.innerHTML=ico(bad?"circle-alert":"check"); return d.firstElementChild; })()
+  );
+  el.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>el.classList.remove("show"), 2600);
+}
+
+/* --- linki -> embed --- */
+
 function parseYtTime(v){
   if(v==null) return null;
   if(/^\d+$/.test(v)) return parseInt(v,10);
   const m=/^(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s)?$/.exec(v);
   if(!m) return null;
   const h=parseInt(m[1]||0,10), mi=parseInt(m[2]||0,10), s=parseInt(m[3]||0,10);
-  const total=h*3600+mi*60+s;
-  return total||null;
+  return (h*3600+mi*60+s)||null;
 }
+
 function youTubeEmbedUrl(raw, opts){
-  let u;
-  try{ u=new URL(raw, location.href); }catch(e){ return null; }
+  let u; try{ u=new URL(raw, location.href); }catch(e){ return null; }
   const host=u.hostname.replace(/^www\./,"").replace(/^m\./,"");
   if(!/^(youtube\.com|youtube-nocookie\.com|youtu\.be)$/.test(host)) return null;
 
   let id=null;
   const listId=u.searchParams.get("list");
   const path=u.pathname;
+  if(host==="youtu.be")                 id=path.split("/").filter(Boolean)[0]||null;
+  else if(path==="/watch")              id=u.searchParams.get("v");
+  else if(path.startsWith("/live/"))    id=path.split("/")[2]||null;
+  else if(path.startsWith("/shorts/"))  id=path.split("/")[2]||null;
+  else if(path.startsWith("/embed/"))   id=path.split("/")[2]||null;
+  if(!id && !listId) return null;
 
-  if(host==="youtu.be"){
-    id=path.split("/").filter(Boolean)[0]||null;
-  }else if(path==="/watch"){
-    id=u.searchParams.get("v");
-  }else if(path.startsWith("/live/")){
-    id=path.split("/")[2]||null;
-  }else if(path.startsWith("/shorts/")){
-    id=path.split("/")[2]||null;
-  }else if(path.startsWith("/embed/")){
-    id=path.split("/")[2]||null;
-  }
-
-  if(!id && !listId) return null; // nie link do YT — użyj adresu jak jest
-
-  const params=new URLSearchParams();
-  params.set("autoplay","1");
-  params.set("mute","1");        // wymagane przez przeglądarki do autoodtwarzania
-  params.set("playsinline","1");
-  params.set("rel","0");
-  params.set("modestbranding","1");
+  const p=new URLSearchParams();
+  p.set("autoplay","1");
+  p.set("mute","1");          // przeglądarki wymagają startu bez dźwięku
+  p.set("enablejsapi","1");   // ← klucz do sterowania audio i głośnością
+  p.set("playsinline","1");
+  p.set("rel","0");
+  p.set("modestbranding","1");
   const tSec=parseYtTime(u.searchParams.get("t")||u.searchParams.get("start"));
-  if(tSec) params.set("start",String(tSec));
-  if(listId) params.set("list",listId);
+  if(tSec) p.set("start",String(tSec));
+  if(listId) p.set("list",listId);
   if(!opts || opts.loop!==false){
-    params.set("loop","1");
-    if(id && !listId) params.set("playlist", id);   // pętla dla pojedynczego wideo
+    p.set("loop","1");
+    if(id && !listId) p.set("playlist", id);
   }
-  params.set("origin",location.origin);
-
-  const vid = id || "videoseries";
-  return `https://www.youtube.com/embed/${vid}?${params.toString()}`;
+  p.set("origin", location.origin);
+  return `https://www.youtube.com/embed/${id||"videoseries"}?${p.toString()}`;
 }
 
-// ---------- Twitch: kanał / VOD / klip -> player.twitch.tv (wymaga parametru parent) ----------
-function twitchEmbedUrl(raw){
-  let u;
-  try{ u=new URL(raw, location.href); }catch(e){ return null; }
+function twitchEmbedUrl(raw, opts){
+  let u; try{ u=new URL(raw, location.href); }catch(e){ return null; }
   const host=u.hostname.replace(/^www\./,"");
   const parent=location.hostname||"localhost";
+  const muted=(!opts || opts.muted!==false) ? "true" : "false";
 
   if(host==="player.twitch.tv"){
     u.searchParams.set("parent",parent);
     if(!u.searchParams.has("autoplay")) u.searchParams.set("autoplay","true");
-    if(!u.searchParams.has("muted")) u.searchParams.set("muted","true");
+    u.searchParams.set("muted",muted);
     return u.toString();
   }
   if(host==="clips.twitch.tv"){
     const slug=u.pathname.split("/").filter(Boolean)[0];
     if(!slug) return null;
-    const params=new URLSearchParams({clip:slug,parent,autoplay:"true"});
-    return `https://clips.twitch.tv/embed?${params.toString()}`;
+    return `https://clips.twitch.tv/embed?${new URLSearchParams({clip:slug,parent,autoplay:"true",muted}).toString()}`;
   }
   if(host==="twitch.tv"){
     const parts=u.pathname.split("/").filter(Boolean);
     if(!parts.length) return null;
-    if(parts[0]==="videos" && parts[1]){
-      const params=new URLSearchParams({video:parts[1],parent,autoplay:"true",muted:"true"});
-      return `https://player.twitch.tv/?${params.toString()}`;
-    }
-    if(parts.length>=3 && parts[1]==="clip"){
-      const params=new URLSearchParams({clip:parts[2],parent,autoplay:"true"});
-      return `https://clips.twitch.tv/embed?${params.toString()}`;
-    }
+    if(parts[0]==="videos" && parts[1])
+      return `https://player.twitch.tv/?${new URLSearchParams({video:parts[1],parent,autoplay:"true",muted}).toString()}`;
+    if(parts.length>=3 && parts[1]==="clip")
+      return `https://clips.twitch.tv/embed?${new URLSearchParams({clip:parts[2],parent,autoplay:"true",muted}).toString()}`;
     if(["directory","p","subscriptions","settings","downloads"].includes(parts[0])) return null;
-    const params=new URLSearchParams({channel:parts[0],parent,autoplay:"true",muted:"true"});
-    return `https://player.twitch.tv/?${params.toString()}`;
+    return `https://player.twitch.tv/?${new URLSearchParams({channel:parts[0],parent,autoplay:"true",muted}).toString()}`;
   }
   return null;
 }
 
-// ---------- Kick: kanał -> player.kick.com ----------
-function kickEmbedUrl(raw){
-  let u;
-  try{ u=new URL(raw, location.href); }catch(e){ return null; }
+function kickEmbedUrl(raw, opts){
+  let u; try{ u=new URL(raw, location.href); }catch(e){ return null; }
   const host=u.hostname.replace(/^www\./,"");
-
+  const muted=(!opts || opts.muted!==false) ? "true" : "false";
   if(host==="player.kick.com"){
     if(!u.searchParams.has("autoplay")) u.searchParams.set("autoplay","true");
-    if(!u.searchParams.has("muted")) u.searchParams.set("muted","true");
+    u.searchParams.set("muted",muted);
     return u.toString();
   }
   if(host==="kick.com"){
     const parts=u.pathname.split("/").filter(Boolean);
     if(!parts.length) return null;
-    const reserved=["video","clips","categories","search","subscribe","browse","following"];
-    if(reserved.includes(parts[0])) return null;
-    const params=new URLSearchParams({autoplay:"true",muted:"true"});
-    return `https://player.kick.com/${encodeURIComponent(parts[0])}?${params.toString()}`;
+    if(["video","clips","categories","search","subscribe","browse","following"].includes(parts[0])) return null;
+    return `https://player.kick.com/${encodeURIComponent(parts[0])}?${new URLSearchParams({autoplay:"true",muted}).toString()}`;
   }
   return null;
 }
 
-// ---------- Spotify: track/album/playlist/artist/episode/show -> open.spotify.com/embed ----------
 function spotifyEmbedUrl(raw){
   let u; try{ u=new URL(raw, location.href); }catch(e){ return null; }
-  const host=u.hostname.replace(/^www\./,"");
-  if(host!=="open.spotify.com") return null;
+  if(u.hostname.replace(/^www\./,"")!=="open.spotify.com") return null;
   if(u.pathname.startsWith("/embed/")) return u.toString();
   const parts=u.pathname.split("/").filter(Boolean);
   const known=["track","album","playlist","artist","episode","show"];
   const ti=parts.findIndex(p=>known.includes(p));
   if(ti<0 || !parts[ti+1]) return null;
-  const type=parts[ti], id=parts[ti+1].split("?")[0];
-  return `https://open.spotify.com/embed/${type}/${id}`;
+  return `https://open.spotify.com/embed/${parts[ti]}/${parts[ti+1].split("?")[0]}`;
 }
 
-// ---------- Apple Music -> embed.music.apple.com ----------
 function appleMusicEmbedUrl(raw){
   let u; try{ u=new URL(raw, location.href); }catch(e){ return null; }
   const host=u.hostname.replace(/^www\./,"");
@@ -776,518 +1288,307 @@ function appleMusicEmbedUrl(raw){
   return null;
 }
 
-// ---------- Rozpoznaje link do platformy i zwraca gotowy adres embed ----------
+function vimeoEmbedUrl(raw, opts){
+  let u; try{ u=new URL(raw, location.href); }catch(e){ return null; }
+  const host=u.hostname.replace(/^www\./,"");
+  if(host==="player.vimeo.com") return u.toString();
+  if(host!=="vimeo.com") return null;
+  const id=u.pathname.split("/").filter(Boolean).find(p=>/^\d+$/.test(p));
+  if(!id) return null;
+  const muted=(!opts || opts.muted!==false) ? "1" : "0";
+  return `https://player.vimeo.com/video/${id}?${new URLSearchParams({autoplay:"1",muted,playsinline:"1"}).toString()}`;
+}
+
 function platformEmbedUrl(raw, opts){
-  return youTubeEmbedUrl(raw, opts) || twitchEmbedUrl(raw) || kickEmbedUrl(raw)
-      || spotifyEmbedUrl(raw) || appleMusicEmbedUrl(raw) || null;
+  return youTubeEmbedUrl(raw,opts) || twitchEmbedUrl(raw,opts) || kickEmbedUrl(raw,opts)
+      || vimeoEmbedUrl(raw,opts) || spotifyEmbedUrl(raw) || appleMusicEmbedUrl(raw) || null;
 }
 
-function icon(n){const p={
-  reload:'<path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>',
-  full:'<path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3"/>',
-  open:'<path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6M10 14 21 3"/>',
-  hide:'<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><path d="M1 1l22 22"/>',
-  fill:'<path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"/><rect x="8" y="8" width="8" height="8" rx="1"/>',
-  loop:'<path d="M17 2l4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14M7 22l-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/>',
-}[n];return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${p}</svg>`;}
+// audio: "api" = postMessage, "reload" = podmiana parametru muted, "none" = brak sterowania
+function detectPlatform(raw){
+  if(!raw || !raw.trim()) return {key:"empty", label:"", audio:"none"};
+  if(youTubeEmbedUrl(raw))    return {key:"youtube",  label:"YouTube",     audio:"api"};
+  if(twitchEmbedUrl(raw))     return {key:"twitch",   label:"Twitch",      audio:"reload"};
+  if(kickEmbedUrl(raw))       return {key:"kick",     label:"Kick",        audio:"reload"};
+  if(vimeoEmbedUrl(raw))      return {key:"vimeo",    label:"Vimeo",       audio:"reload"};
+  if(spotifyEmbedUrl(raw))    return {key:"spotify",  label:"Spotify",     audio:"none"};
+  if(appleMusicEmbedUrl(raw)) return {key:"apple",    label:"Apple Music", audio:"none"};
+  try{ new URL(raw, location.href); }catch(e){ return {key:"bad", label:"", audio:"none"}; }
+  return {key:"other", label:"", audio:"none"};
+}
 
+/* ---------- drobne pomocniki ---------- */
 const DEMO_COLORS=["#ff2d21","#46c26a","#e0a33a","#33b5d1","#a06cff","#ff6ba6"];
-function demoColor(i){return DEMO_COLORS[((i%DEMO_COLORS.length)+DEMO_COLORS.length)%DEMO_COLORS.length];}
+const demoColor = i => DEMO_COLORS[((i%DEMO_COLORS.length)+DEMO_COLORS.length)%DEMO_COLORS.length];
+const p2  = n => String(n||0).padStart(2,"0");
+const durOf = src => (src.h||0)*3600+(src.m||0)*60+(src.s||0);
+function fmtTimer(s){
+  s=Math.max(0,Math.floor(s));
+  const h=Math.floor(s/3600), m=Math.floor((s%3600)/60), ss=s%60;
+  return h>0 ? `${h}:${p2(m)}:${p2(ss)}` : `${p2(m)}:${p2(ss)}`;
+}
+function clockRemaining(src){
+  const now=new Date();
+  return durOf(src) - (now.getHours()*3600+now.getMinutes()*60+now.getSeconds());
+}
+const typeColor = ty => ty==="main" ? "var(--pgm)" : ty==="secondary" ? "var(--pvw)" : "var(--aux)";
 
-// ---------- timery ----------
-const timerState={};
-function durOf(src){ return (src.h||0)*3600+(src.m||0)*60+(src.s||0); }
-function timerInit(src){ if(!timerState[src.id]) timerState[src.id]={left: src.mode==="up"?0:durOf(src), running:false}; return timerState[src.id]; }
-function clockRemaining(src){ const now=new Date(); const nowS=now.getHours()*3600+now.getMinutes()*60+now.getSeconds(); return durOf(src)-nowS; }
-function p2(n){ return String(n||0).padStart(2,"0"); }
-function fmtTimer(s){ s=Math.max(0,Math.floor(s)); const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),ss=s%60,p=n=>String(n).padStart(2,"0"); return h>0?`${h}:${p(m)}:${p(ss)}`:`${p(m)}:${p(ss)}`; }
+/* --- timery --- */
+function runOf(src){
+  if(!src.run || typeof src.run!=="object") src.run={status:"idle",startedAt:0,accumMs:0};
+  return src.run;
+}
+function timerElapsedMs(src){
+  const r=runOf(src);
+  return r.accumMs + (r.status==="running" ? Math.max(0, Date.now()-r.startedAt) : 0);
+}
+function timerValue(src){
+  if(src.mode==="clock") return clockRemaining(src);
+  const el=timerElapsedMs(src)/1000;
+  return src.mode==="up" ? el : Math.max(0, durOf(src)-el);
+}
+function timerDone(src){
+  if(src.mode==="clock") return clockRemaining(src)<0;
+  return src.mode!=="up" && durOf(src)>0 && timerElapsedMs(src)/1000>=durOf(src);
+}
+function timerToggle(src){
+  const r=runOf(src);
+  if(r.status==="running"){ r.accumMs+=Date.now()-r.startedAt; r.status="paused"; }
+  else { r.startedAt=Date.now(); r.status="running"; }
+  saveState();
+}
+function timerReset(src){
+  src.run={status:"idle",startedAt:0,accumMs:0};
+  saveState();
+}
 
-function buildTile(src, index, areaClass){
-  const tile=document.createElement("div");
-  tile.className=`tile t-${src.type}`+(areaClass?` ${areaClass}`:"")+(src.enabled?"":" off");
-  tile.dataset.srcId=src.id;
-  tile.style.borderWidth=(state.borderPx!=null?state.borderPx:2)+"px";
-  if(src.color) tile.style.borderColor=src.color;
-  if(src.fill) tile.classList.add("fill");
-  const idx=String(index).padStart(2,"0");
+/* --- kafelki --- */
+const tileNodes = new Map();   // id -> { el, sig, iframe, kind, retries }
+const RETRY_MS  = 18000;       // po tylu ms bez sygnału ponawiamy
+const LOAD_MS   = 12000;       // po tylu ms bez zdarzenia load uznajemy „brak sygnału"
 
-  if(src.demo){
-    tile.classList.add("demo-tile");
-    tile.style.setProperty("--dc", src.color||"#33b5d1");
-    tile.innerHTML=`<div class="demo-body">
-        <svg class="demo-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-        <div class="demo-name">${esc(src.name)}</div></div>
-      <div class="strip"><span class="tally"><span class="dot"></span></span><span class="name">${esc(src.name)}</span><span class="idx">DEMO</span></div>`;
-    return tile;
+function embedFor(src){
+  const wantsSound = activeAudioId===src.id;
+  return platformEmbedUrl(src.url, {loop: src.loop!==false, muted: !wantsSound}) || src.url;
+}
+function tileSig(src){
+  if(src.type==="timer") return "timer|"+(src.mode||"down");
+  if(src.demo)           return "demo|"+(src.color||"");
+  if(src.url)            return "frame|"+embedFor(src);
+  return "empty";
+}
+
+/* --- pasek statusu na kafelku (ładowanie / brak sygnału) --- */
+function setTileStatus(el, kind){        // kind: "loading" | "error" | null
+  el.classList.toggle("tile-loading", kind==="loading");
+  el.classList.toggle("tile-error",   kind==="error");
+  const box=el.querySelector(".tstatus");
+  if(!box) return;
+  if(kind==="loading"){
+    box.innerHTML=`${ico("loader-circle")}<div class="ts-title">${esc(t("loadingT"))}</div>`;
+  }else if(kind==="error"){
+    box.innerHTML=`${ico("triangle-alert")}
+      <div class="ts-title">${esc(t("noSignal"))}</div>
+      <div class="ts-sub">${esc(t("noSignalSub"))}</div>
+      <button data-a="retry">${ico("rotate-cw","ico-sm")}${esc(t("retry"))}</button>`;
+    const b=box.querySelector("[data-a='retry']");
+    if(b) b.onclick=()=>reloadTile(el.dataset.srcId);
   }
+}
 
-  if(!src.enabled){
-    tile.innerHTML=`<div class="ph"><div class="big">${esc(src.name)}</div><div class="small">${t("sceneOff")}</div></div>
-      <div class="strip"><span class="name">${esc(src.name)}</span><span class="idx">${idx} · OFF</span></div>`;
-    return tile;
-  }
+function watchIframe(id){
+  const rec=tileNodes.get(id);
+  if(!rec || !rec.iframe) return;
+  clearTimeout(rec.loadTimer); clearTimeout(rec.retryTimer);
+  setTileStatus(rec.el,"loading");
+  rec.loadTimer=setTimeout(()=>{
+    setTileStatus(rec.el,"error");
+    if(state.opts.autoRetry && (rec.retries||0)<5){
+      rec.retries=(rec.retries||0)+1;
+      rec.retryTimer=setTimeout(()=>reloadTile(id), RETRY_MS);
+    }
+  }, LOAD_MS);
+  rec.iframe.onload=()=>{
+    clearTimeout(rec.loadTimer); clearTimeout(rec.retryTimer);
+    rec.retries=0; setTileStatus(rec.el,null);
+  };
+}
+
+function reloadTile(id){
+  const rec=tileNodes.get(id), src=byId(id);
+  if(!rec || !rec.iframe || !src) return;
+  const url=embedFor(src);
+  rec.iframe.src="about:blank";                       // pewny reset także poza Chrome
+  requestAnimationFrame(()=>{ rec.iframe.src=url; watchIframe(id); });
+}
+
+/* --- budowa nowego kafelka --- */
+function createTile(src){
+  const el=document.createElement("div");
+  el.className="tile";
+  el.dataset.srcId=src.id;
+
+  // TIMER
   if(src.type==="timer"){
-    const col=src.color||"#33b5d1";
-    if(!tile.style.borderColor) tile.style.borderColor=col;
-    tile.dataset.timer=src.id;
-    const wrap=document.createElement("div");wrap.className="tmr-tile";
+    const col=safeColor(src.color)||"#33b5d1";
+    const wrap=document.createElement("div");
+    wrap.className="tmr-tile";
     wrap.style.background=`radial-gradient(120% 120% at 50% 15%, ${col}22 0%, #0b0e13 70%)`;
-    if(src.mode==="clock"){
-      const v=clockRemaining(src);
-      wrap.innerHTML=`<div class="tmr-name">${esc(src.name)}</div>
-        <div class="tmr-time${v<0?" done":""}" style="color:${v<0?'#ff2d21':col}">${v<0?'−':''}${fmtTimer(Math.abs(v))}</div>
-        <div class="tmr-sub">${t("tmrToLabel")} ${p2(src.h)}:${p2(src.m)}</div>`;
-    }else{
-      const ts=timerInit(src);
-      wrap.innerHTML=`<div class="tmr-name">${esc(src.name)}</div>
-        <div class="tmr-time${(src.mode!=="up"&&ts.left===0)?" done":""}" style="color:${col}">${fmtTimer(ts.left)}</div>
-        <div class="tmr-ctl">
-          <button data-tc="toggle">${ts.running?t("tmrPause"):t("tmrStart")}</button>
-          <button data-tc="reset">${t("tmrReset")}</button>
-        </div>`;
-    }
-    tile.appendChild(wrap);
+    wrap.innerHTML=`<div class="tmr-name"></div><div class="tmr-time"></div>`
+      + (src.mode==="clock"
+          ? `<div class="tmr-sub"></div>`
+          : `<div class="tmr-ctl">
+               <button data-tc="toggle">${ico("play","ico-sm")}<span></span></button>
+               <button data-tc="reset">${ico("rotate-ccw","ico-sm")}<span>${esc(t("tmrReset"))}</span></button>
+             </div>`);
+    el.appendChild(wrap);
     const tgl=wrap.querySelector('[data-tc="toggle"]');
-    if(tgl) tgl.onclick=()=>{ const ts=timerInit(src); ts.running=!ts.running; tgl.textContent=ts.running?t("tmrPause"):t("tmrStart"); };
+    if(tgl) tgl.onclick=()=>{ timerToggle(src); paintTimer(src); };
     const rst=wrap.querySelector('[data-tc="reset"]');
-    if(rst) rst.onclick=()=>{
-      const ts=timerInit(src); ts.left=src.mode==="up"?0:durOf(src); ts.running=false;
-      const te=wrap.querySelector(".tmr-time"); te.textContent=fmtTimer(ts.left); te.classList.remove("done");
-      if(tgl) tgl.textContent=t("tmrStart");
-    };
-    const ctl=document.createElement("div");ctl.className="tctl";
-    ctl.innerHTML=`<button data-a="hide" title="${t("tHide")}">${icon("hide")}</button>`;
-    ctl.querySelector('[data-a="hide"]').onclick=()=>{src.enabled=false;saveState();renderWall();};
-    tile.appendChild(ctl);
-    return tile;
+    if(rst) rst.onclick=()=>{ timerReset(src); paintTimer(src); };
+    el.appendChild(tileControls(src,["hide"]));
+    return {el, kind:"timer", iframe:null};
   }
+
+  // DEMO
   if(src.demo){
-    const col=src.color||demoColor(index-1);
-    if(!tile.style.borderColor) tile.style.borderColor=col;
-    const ph=document.createElement("div");ph.className="demo-ph";
+    const col=safeColor(src.color)||demoColor(0);
+    const ph=document.createElement("div");
+    ph.className="demo-ph";
     ph.style.background=`radial-gradient(120% 120% at 30% 20%, ${col}55 0%, ${col}18 45%, #0b0e13 100%)`;
-    ph.innerHTML=`<span class="demo-badge" style="color:${col}">DEMO</span><span class="demo-name">${esc(src.name)}</span>`;
-    tile.appendChild(ph);
-    const ctl=document.createElement("div");ctl.className="tctl";
-    ctl.innerHTML=`<button data-a="hide" title="${t("tHide")}">${icon("hide")}</button>`;
-    ctl.querySelector('[data-a="hide"]').onclick=()=>{src.enabled=false;saveState();renderWall();};
-    tile.appendChild(ctl);
-    const strip=document.createElement("div");strip.className="strip";
-    strip.innerHTML=`<span class="tally"><span class="dot" style="background:${col};box-shadow:0 0 7px ${col}"></span></span><span class="name">${esc(src.name)}</span><span class="idx">${idx}</span>`;
-    tile.appendChild(strip);
-    return tile;
+    ph.innerHTML=`<span class="demo-badge" style="color:${col}">DEMO</span><span class="demo-name"></span>`;
+    el.appendChild(ph);
+    el.appendChild(tileControls(src,["hide"]));
+    el.appendChild(makeStrip());
+    return {el, kind:"demo", iframe:null};
   }
+
+  // STREAM
   if(src.url){
-    const ytUrl=platformEmbedUrl(src.url, {loop: src.loop!==false});
-    const isYT=!!youTubeEmbedUrl(src.url);
     const f=document.createElement("iframe");
-    f.src=ytUrl||src.url;
-    f.setAttribute("allow","autoplay; fullscreen; encrypted-media; picture-in-picture"+(ytUrl?"; accelerometer; gyroscope; clipboard-write":""));
-    f.setAttribute("referrerpolicy", ytUrl ? "strict-origin-when-cross-origin" : "no-referrer-when-downgrade");
+    f.title=src.name||"stream";
+    f.setAttribute("loading","eager");
+    f.setAttribute("allow","autoplay; fullscreen; encrypted-media; picture-in-picture; accelerometer; gyroscope; clipboard-write");
+    f.setAttribute("referrerpolicy","strict-origin-when-cross-origin");
     f.setAttribute("allowfullscreen","");
-    tile.appendChild(f);
-    const ctl=document.createElement("div");ctl.className="tctl";
-    ctl.innerHTML=`<button data-a="fill" title="${t("tFill")}"${src.fill?' class="active"':''}>${icon("fill")}</button>`
-      +(isYT?`<button data-a="loop" title="${t("tLoop")}"${src.loop!==false?' class="active"':''}>${icon("loop")}</button>`:``)
-      +`<button data-a="hide" title="${t("tHide")}">${icon("hide")}</button>
-      <button data-a="reload" title="${t("tReload")}">${icon("reload")}</button>
-      <button data-a="full" title="${t("tFull")}">${icon("full")}</button>
-      <button data-a="open" title="${t("tOpen")}">${icon("open")}</button>`;
-    ctl.querySelector('[data-a="fill"]').onclick=()=>{
-      src.fill=!src.fill; saveState();
-      tile.classList.toggle("fill",src.fill);
-      ctl.querySelector('[data-a="fill"]').classList.toggle("active",src.fill);
-    };
-    const lb=ctl.querySelector('[data-a="loop"]');
-    if(lb) lb.onclick=()=>{
-      src.loop=(src.loop===false); saveState();
-      f.src=platformEmbedUrl(src.url,{loop:src.loop!==false})||src.url;
-      lb.classList.toggle("active",src.loop!==false);
-    };
-    ctl.querySelector('[data-a="hide"]').onclick=()=>{src.enabled=false;saveState();renderWall();};
-    ctl.querySelector('[data-a="reload"]').onclick=()=>{f.src=f.src;};
-    ctl.querySelector('[data-a="full"]').onclick=()=>{(tile.requestFullscreen||tile.webkitRequestFullscreen||function(){}).call(tile);};
-    ctl.querySelector('[data-a="open"]').onclick=()=>window.open(src.url,"_blank","noopener");
-    tile.appendChild(ctl);
-  }else{
-    const ph=document.createElement("div");ph.className="ph";
-    ph.innerHTML=`<div class="big">${esc(src.name)}</div><div class="small">${t("noUrl")}</div>`;
-    tile.appendChild(ph);
+    f.src=embedFor(src);
+    el.appendChild(f);
+    const status=document.createElement("div");
+    status.className="tstatus";
+    el.appendChild(status);
+    el.appendChild(tileControls(src,["fill","loop","hide","reload","full","open"]));
+    el.appendChild(makeStrip());
+    return {el, kind:"frame", iframe:f};
   }
-  const strip=document.createElement("div");strip.className="strip";
+
+  // BRAK ADRESU
+  const ph=document.createElement("div");
+  ph.className="ph";
+  ph.innerHTML=`<div class="big"></div><div class="small">${esc(t("noUrl"))}</div>`;
+  el.appendChild(ph);
+  el.appendChild(makeStrip());
+  return {el, kind:"empty", iframe:null};
+}
+
+function makeStrip(){
+  const strip=document.createElement("div");
+  strip.className="strip";
   strip.innerHTML=`<span class="tally"><span class="dot"></span></span>
-    <span class="name">${esc(src.name)}</span><span class="idx">${idx}</span>`;
-  tile.appendChild(strip);
-  return tile;
+    <span class="name"></span>
+    <span class="aud">${esc(t("btnAudio"))}</span>
+    <span class="idx"></span>`;
+  return strip;
 }
 
-function renderWall(){
-  const wall=document.getElementById("wall");
-  wall.innerHTML="";wall.className="wall";
-  wall.style.gridTemplateColumns="";wall.style.gridTemplateRows="";
-  wall.style.gridAutoRows="";wall.style.gridAutoFlow="";
-  const m=state.layout.mode;
-
-  if(editWall){ renderWallEdit(); return; }
-
-  if(!state.sources.some(s=>s.enabled)){
-    wall.style.gridTemplateColumns="1fr";wall.style.gridTemplateRows="1fr";
-    const e=document.createElement("div");e.className="empty-state";
-    e.innerHTML=`<div class="es-inner">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-      <div class="es-title">${t("emptyTitle")}</div>
-      <div class="es-sub">${t("emptySub")}</div>
-      <button class="es-btn" id="esAdd">${t("emptyBtn")}</button>
-    </div>`;
-    wall.appendChild(e);
-    const b=e.querySelector("#esAdd");
-    if(b) b.onclick=()=>{renderSettings();openDrawer(document.getElementById("settingsDrawer"));};
-    afterWall();return;
-  }
-
-  if(m==="custom"){
-    ensureCells();
-    const cols=Math.max(1,state.layout.cols||3), rows=Math.max(1,state.layout.rows||2);
-    wall.style.gridTemplateColumns=`repeat(${cols},1fr)`;
-    wall.style.gridTemplateRows=`repeat(${rows},1fr)`;
-    const {placed}=computeLayout(cols,rows,state.layout.cells,state.layout.sizes||{});
-    placed.forEach((p,idx)=>{
-      const tile=buildTile(byId(p.id),idx+1,null);
-      tile.style.gridColumn=`${p.c+1} / span ${p.w}`;
-      tile.style.gridRow=`${p.r+1} / span ${p.h}`;
-      wall.appendChild(tile);
-    });
-    afterWall();return;
-  }
-
-  // gotowe układy (grid / focus / column / row) — działają na dowolnych aktywnych podglądach
-  const act=state.sources.filter(s=>s.enabled);
-  const arr=presetArrange(m, act.map(s=>s.id));
-  if(arr){
-    wall.style.gridTemplateColumns=`repeat(${arr.cols},1fr)`;
-    wall.style.gridTemplateRows=`repeat(${arr.rows},1fr)`;
-    arr.items.forEach((it,idx)=>{
-      const tile=buildTile(byId(it.id),idx+1,null);
-      tile.style.gridColumn=`${it.c+1} / span ${it.w}`;
-      tile.style.gridRow=`${it.r+1} / span ${it.h}`;
-      wall.appendChild(tile);
-    });
-  }
-  afterWall();
-}
-
-// Buduje rozmieszczenie kafelków dla gotowych układów
-function presetArrange(mode, ids){
-  const n=ids.length;
-  if(!n) return null;
-  if(mode==="column") return {cols:1, rows:n, items:ids.map((id,i)=>({id,c:0,r:i,w:1,h:1}))};
-  if(mode==="row")    return {cols:n, rows:1, items:ids.map((id,i)=>({id,c:i,r:0,w:1,h:1}))};
-  if(mode==="focus"){
-    if(n===1) return {cols:1, rows:1, items:[{id:ids[0],c:0,r:0,w:1,h:1}]};
-    const cols=n-1, rows=3;
-    const items=[{id:ids[0], c:0, r:0, w:cols, h:2}];
-    for(let i=1;i<n;i++) items.push({id:ids[i], c:i-1, r:2, w:1, h:1});
-    return {cols, rows, items};
-  }
-  // grid (domyślny) i wszystko inne
-  const cols=Math.max(1,Math.ceil(Math.sqrt(n))), rows=Math.ceil(n/cols);
-  return {cols, rows, items:ids.map((id,i)=>({id, c:i%cols, r:Math.floor(i/cols), w:1, h:1}))};
-}
-
-function renderWallEdit(){
-  const wall=document.getElementById("wall");
-  wall.innerHTML="";wall.className="wall editing";
-  ensureCells();
-  const cols=Math.max(1,state.layout.cols||3), rows=Math.max(1,state.layout.rows||2);
-  wall.style.gridTemplateColumns=`repeat(${cols},1fr)`;
-  wall.style.gridTemplateRows=`repeat(${rows},1fr)`;
-  wall.style.gridAutoRows="";wall.style.gridAutoFlow="";
-  const cells=state.layout.cells, sizes=state.layout.sizes;
-  const {placed,covered}=computeLayout(cols,rows,cells,sizes);
-  const startMap={}; placed.forEach(p=>startMap[p.i]=p);
-
-  for(let i=0;i<cols*rows;i++){
-    if(covered.has(i)) continue;
-    const r=Math.floor(i/cols), c=i%cols, p=startMap[i];
-    const cell=document.createElement("div");
-    cell.dataset.i=i;
-    if(p){
-      const src=byId(p.id), col=src.color||demoColor(i);
-      cell.className="tile ew-tile";
-      cell.style.gridColumn=`${c+1} / span ${p.w}`;
-      cell.style.gridRow=`${r+1} / span ${p.h}`;
-      cell.style.borderColor=col;cell.style.borderWidth=(state.borderPx!=null?state.borderPx:2)+"px";
-      cell.style.background=`radial-gradient(120% 120% at 30% 20%, ${col}44 0%, ${col}12 45%, #0b0e13 100%)`;
-      cell.innerHTML=`<span class="ew-name" draggable="true">${esc(src.name)}</span>
-        <div class="ew-ctl">
-          <span class="ew-lbl">W</span><button data-sz="w" data-d="-1">–</button><b>${p.w}</b><button data-sz="w" data-d="1">+</button>
-          <span class="ew-lbl">H</span><button data-sz="h" data-d="-1">–</button><b>${p.h}</b><button data-sz="h" data-d="1">+</button>
-          <button class="ew-del" title="${t("titleDel")}">✕</button>
-        </div>`;
-      cell.querySelectorAll("[data-sz]").forEach(btn=>{ btn.onclick=e=>{
-        e.stopPropagation();
-        const k=btn.dataset.sz,d=parseInt(btn.dataset.d,10);
-        const cur=sizes[p.id]||{w:1,h:1}, nw={w:cur.w||1,h:cur.h||1};
-        const max=k==="w"?cols:rows;
-        nw[k]=Math.max(1,Math.min(max,(nw[k]||1)+d));
-        sizes[p.id]=nw; saveState(); renderWallEdit();
-      };});
-      cell.querySelector(".ew-del").onclick=e=>{e.stopPropagation();cells[i]=null;delete sizes[p.id];saveState();renderWallEdit();};
-      cell.querySelector(".ew-name").addEventListener("dragstart",e=>{dragId=p.id;dragFrom=i;e.dataTransfer.effectAllowed="move";});
-    }else{
-      cell.className="tile ew-empty";
-      cell.style.gridColumn=`${c+1}`;cell.style.gridRow=`${r+1}`;
-      cell.innerHTML=`<span class="ew-hint">${t("dropScene")}</span>`;
-    }
-    cell.addEventListener("dragover",e=>{e.preventDefault();cell.classList.add("dragover");});
-    cell.addEventListener("dragleave",()=>cell.classList.remove("dragover"));
-    cell.addEventListener("drop",e=>{
-      e.preventDefault();cell.classList.remove("dragover");
-      if(!dragId)return;
-      const existing=cells.indexOf(dragId);
-      if(dragFrom!==null){ const tmp=cells[i];cells[i]=dragId;cells[dragFrom]=tmp; }
-      else{ if(startMap[i]){dragId=null;return;} if(existing>-1)cells[existing]=null; cells[i]=dragId; if(!sizes[dragId])sizes[dragId]={w:1,h:1}; }
-      dragId=null;dragFrom=null; saveState(); renderWallEdit();
-    });
-    wall.appendChild(cell);
-  }
-  buildEditBar();
-  afterWall();
-}
-
-function buildEditBar(){
-  let bar=document.getElementById("ewbar");
-  if(!bar){ bar=document.createElement("div"); bar.id="ewbar"; bar.className="ewbar"; document.body.appendChild(bar); }
-  const placedIds=new Set(state.layout.cells.filter(Boolean));
-  const avail=state.sources.filter(s=>s.enabled && !placedIds.has(s.id));
-  const chips=avail.map(s=>`<span class="ewchip" draggable="true" data-id="${s.id}"><span class="cd" style="background:${s.color||'#33b5d1'}"></span>${esc(s.name)}</span>`).join("");
-  bar.innerHTML=`
-    <div class="grp"><span class="lbl">${t("cols")}</span><button class="st" data-ew="cols" data-d="-1">–</button><span class="val">${state.layout.cols}</span><button class="st" data-ew="cols" data-d="1">+</button></div>
-    <div class="grp"><span class="lbl">${t("rows")}</span><button class="st" data-ew="rows" data-d="-1">–</button><span class="val">${state.layout.rows}</span><button class="st" data-ew="rows" data-d="1">+</button></div>
-    ${chips?`<div class="ewpal">${chips}</div>`:""}
-    <button class="done" id="ewDone">${t("done")}</button>`;
-  bar.querySelectorAll("[data-ew]").forEach(b=>b.onclick=()=>{
-    const k=b.dataset.ew,d=parseInt(b.dataset.d,10);
-    state.layout[k]=Math.min(12,Math.max(1,(state.layout[k]||1)+d));
-    ensureCells(); saveState(); renderWallEdit();
-  });
-  bar.querySelectorAll(".ewchip").forEach(ch=>ch.addEventListener("dragstart",e=>{dragId=ch.dataset.id;dragFrom=null;e.dataTransfer.effectAllowed="copy";}));
-  bar.querySelector("#ewDone").onclick=()=>{ editWall=false; const b=document.getElementById("ewbar"); if(b) b.remove(); renderWall(); };
-}
-
-function emptyTile(){
-  const e=document.createElement("div");e.className="tile";e.style.background="#0a0c10";
-  return e;
-}
-
-// aktywne sceny w zapisanej kolejności (nieznane doklejone na koniec)
-function customTiles(){
-  const enabled=activeSources();
-  const order=(state.layout.order||[]).filter(id=>enabled.some(s=>s.id===id));
-  enabled.forEach(s=>{ if(!order.includes(s.id)) order.push(s.id); });
-  state.layout.order=order;
-  return order;
-}
-
-/* ---------- audio solo ---------- */
-function tileIframe(id){
-  const t=document.querySelector(`.tile[data-src-id="${id}"]`);
-  return t?t.querySelector("iframe"):null;
-}
-function markAudio(){
-  document.querySelectorAll(".tile").forEach(t=>
-    t.classList.toggle("audio-live", !!activeAudioId && t.dataset.srcId===activeAudioId));
-  updateAbActive();
-}
-function updateAbActive(){
-  const el=document.getElementById("abActive");if(!el)return;
-  const src=activeAudioId?byId(activeAudioId):null;
-  el.textContent=src?src.name:t("audMuted");
-}
-function postToTile(id,cmd){
-  const f=tileIframe(id);
-  if(f&&f.contentWindow){ try{ f.contentWindow.postMessage({ewcAudio:cmd},"*"); }catch(e){} }
-}
-function setSolo(id){
-  if(activeAudioId===id){                      // ta sama scena → wycisz
-    postToTile(id,"mute");
-    activeAudioId=null;
-  }else{
-    if(activeAudioId) postToTile(activeAudioId,"mute"); // wycisz poprzednią
-    postToTile(id,"unmute");
-    activeAudioId=id;
-  }
-  markAudio();renderAudioPanel();
-}
-function muteAll(){
-  document.querySelectorAll(".tile[data-src-id]").forEach(t=>{
-    const f=t.querySelector("iframe");
-    if(f&&f.contentWindow){ try{ f.contentWindow.postMessage({ewcAudio:"mute"},"*"); }catch(e){} }
-  });
-  activeAudioId=null;markAudio();renderAudioPanel();
-}
-function renderAudioPanel(){
-  const list=document.getElementById("abList");if(!list)return;
-  const tiles=[...document.querySelectorAll(".tile[data-src-id]")].filter(t=>t.querySelector("iframe"));
-  if(!tiles.length){list.innerHTML=`<div class="ab-hint">${t("audNoTiles")}</div>`;return;}
-  list.innerHTML="";
-  tiles.forEach(t=>{
-    const id=t.dataset.srcId,src=byId(id);if(!src)return;
+function tileControls(src, which){
+  const ctl=document.createElement("div");
+  ctl.className="tctl";
+  const isYT=!!youTubeEmbedUrl(src.url||"");
+  const defs={
+    fill  :["expand",       t("tFill")],
+    loop  :["repeat",       t("tLoop")],
+    hide  :["eye-off",      t("tHide")],
+    reload:["rotate-cw",    t("tReload")],
+    full  :["maximize",     t("tFull")],
+    open  :["external-link",t("tOpen")],
+  };
+  which.forEach(k=>{
+    if(k==="loop" && !isYT) return;
+    const [icon,label]=defs[k];
     const b=document.createElement("button");
-    b.className=`ab-pill t-${src.type}`+(id===activeAudioId?" on":"");
-    b.innerHTML=`<span class="dot"></span>${esc(src.name)}`;
-    b.onclick=()=>setSolo(id);
-    list.appendChild(b);
+    b.dataset.a=k; b.title=label; b.setAttribute("aria-label",label);
+    b.innerHTML=ico(icon);
+    ctl.appendChild(b);
   });
-}
-function afterWall(){
-  activeAudioId=null;
-  document.querySelectorAll(".tile").forEach(t=>t.classList.remove("audio-live"));
-  const ab=document.getElementById("audiobar");
-  if(ab && !ab.hidden) renderAudioPanel();
-  updateAbActive();
-}
-
-/* ---------- language ---------- */
-function applyI18n(){
-  document.querySelectorAll("[data-i18n]").forEach(el=>{el.textContent=t(el.dataset.i18n);});
-  document.querySelectorAll("[data-i18n-title]").forEach(el=>{el.title=t(el.dataset.i18nTitle);});
-  document.documentElement.lang=state.lang;
-  document.querySelectorAll("#langseg button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.lang===state.lang)));
-  updateAbActive();tick();
-}
-function setLang(l){
-  if(state.lang===l) return;
-  state.lang=l;saveState();applyI18n();
-  if(document.getElementById("settingsDrawer").classList.contains("show")) renderSettings();
-  if(document.getElementById("layoutDrawer").classList.contains("show")) renderEditor();
-  const ab=document.getElementById("audiobar");if(ab && !ab.hidden) renderAudioPanel();
-  if(!state.sources.some(s=>s.enabled)) renderWall(); // odśwież ekran „brak podglądów"
-}
-
-function promptUnlock(){
-  const p=prompt(t("promptUnlock"));
-  if(p===null) return;
-  if(p==="1502"){ unlocked=true; renderSettings(); }
-  else alert(t("wrongPass"));
-}
-
-function renderSettings(){
-  const body=document.getElementById("settingsBody");
-  const groups=[["main",t("grpMain")],["secondary",t("grpSecondary")],["studio",t("grpStudio")],["timer",t("grpTimer")]];
-  const lockBanner=`<div class="lockbar ${unlocked?"open":""}">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${unlocked
-      ?'<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/>'
-      :'<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>'}</svg>
-    <span>${unlocked?t("unlockedMsg"):t("lockedMsg")}</span>
-    <button id="lockToggle">${unlocked?t("lock"):t("unlock")}</button>
-  </div>`;
-  let html=`<div class="src" style="margin-bottom:14px;align-items:center">
-    <div class="src-main"><div style="font-size:12.5px;font-weight:600;color:var(--text-bright)">${t("borderWidthTitle")}</div>
-    <div style="font-size:11.5px;color:var(--text-dim);line-height:1.4">${t("borderWidthDesc")}</div></div>
-    <div class="stepper"><button id="bwDec">–</button><span class="val" id="bwVal">${state.borderPx}</span><button id="bwInc">+</button></div>
-  </div>`;
-  groups.forEach(([type,label])=>{
-    const list=state.sources.filter(s=>s.type===type);
-    if(!list.length) return;
-    html+=`<div class="group-label"><span class="tag ${type}"></span>${label}</div>`;
-    list.forEach(s=>{
-      const midField = s.type==="timer"
-        ? `<div class="tmr-fields">
-             <div class="tmr-hms">
-               <input data-th="h" type="number" min="0" max="99" value="${s.h||0}"><span>:</span>
-               <input data-th="m" type="number" min="0" max="59" value="${p2(s.m)}">${s.mode==="clock"?"":`<span>:</span><input data-th="s" type="number" min="0" max="59" value="${p2(s.s)}">`}
-             </div>
-             <div class="seg tmr-mode">
-               <button data-tmode="down" aria-pressed="${(!s.mode||s.mode==='down')}">${t("tmrDown")}</button>
-               <button data-tmode="up" aria-pressed="${s.mode==='up'}">${t("tmrUp")}</button>
-               <button data-tmode="clock" aria-pressed="${s.mode==='clock'}">${t("tmrClock")}</button>
-             </div>
-           </div>`
-        : `<input class="url" data-k="url" value="${esc(s.url)}" placeholder="${t("phUrl")}" spellcheck="false"${(!unlocked && !s.id.startsWith("cst"))?" disabled":""}>`;
-      html+=`<div class="src ${s.enabled?"":"disabled"}" data-id="${s.id}">
-        <label class="switch"><input type="checkbox" data-k="enabled" ${s.enabled?"checked":""}><span class="track"></span><span class="thumb"></span></label>
-        <div class="src-main">
-          <input class="name" data-k="name" value="${esc(s.name)}" placeholder="${s.type==="timer"?t("timerLabel"):t("phName")}">
-          ${midField}
-        </div>
-        <label class="clr-pick" title="${t("borderColor")}"><input type="color" data-k="color" value="${s.color||'#33b5d1'}"><span class="clr-swatch" style="background:${s.color||'#33b5d1'}"></span></label>
-        ${(s.id.startsWith("cst")||s.type==="timer")?`<button class="del" data-del title="${t("titleDel")}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m2 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg></button>`:""}
-      </div>`;
-    });
+  ctl.querySelectorAll("button").forEach(b=>{
+    const a=b.dataset.a, el=()=>tileNodes.get(src.id)?.el;
+    if(a==="fill")   b.onclick=()=>{ src.fill=!src.fill; saveState();
+                                     el()?.classList.toggle("fill",src.fill); b.classList.toggle("active",src.fill); };
+    if(a==="loop")   b.onclick=()=>{ src.loop=(src.loop===false); saveState(); renderWall(); };
+    if(a==="hide")   b.onclick=()=>{ src.enabled=false; saveState(); renderWall(); renderSettingsIfOpen(); };
+    if(a==="reload") b.onclick=()=>reloadTile(src.id);
+    if(a==="full")   b.onclick=()=>{ const e=el(); if(e && e.requestFullscreen) e.requestFullscreen().catch(()=>{}); };
+    if(a==="open")   b.onclick=()=>window.open(src.url,"_blank","noopener");
   });
-  body.innerHTML=html+`
-    <div class="note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01"/><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
-      <div>${t("note")}</div></div>
-    <div class="settings-sep"></div>
-    <button class="btn-danger" id="resetDefaults" style="width:100%">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m2 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>
-      ${t("resetBtn")}</button>`;
-
-  const ft=body.querySelector("#fillToggle");
-  if(ft) ft.onchange=()=>{ state.fillTiles=ft.checked; saveState(); renderWall(); };
-
-  const bwStep=d=>{ state.borderPx=Math.max(0,Math.min(8,(state.borderPx||0)+d)); saveState();
-    const v=body.querySelector("#bwVal"); if(v) v.textContent=state.borderPx; renderWall(); };
-  const bwD=body.querySelector("#bwDec"), bwI=body.querySelector("#bwInc");
-  if(bwD) bwD.onclick=()=>bwStep(-1);
-  if(bwI) bwI.onclick=()=>bwStep(1);
-
-  const lt=body.querySelector("#lockToggle");
-  if(lt) lt.onclick=()=>{
-    if(unlocked){ unlocked=false; renderSettings(); }
-    else promptUnlock();
-  };
-
-  const rb=body.querySelector("#resetDefaults");
-  if(rb) rb.onclick=()=>{
-    if(!unlocked){ promptUnlock(); return; }
-    if(!confirm(t("confirmReset")))return;
-    const l=state.lang; state=DEFAULTS(); state.lang=l; saveState();renderSettings();renderWall();
-  };
-
-  body.querySelectorAll(".src").forEach(row=>{
-    const id=row.dataset.id;
-    const del=row.querySelector("[data-del]");
-    const clr=row.querySelector('input[type="color"]');
-    if(clr) clr.addEventListener("input",()=>{ const sw=row.querySelector(".clr-swatch"); if(sw) sw.style.background=clr.value; });
-    if(del) del.onclick=()=>{
-      state.sources=state.sources.filter(s=>s.id!==id);
-      if(state.layout.cells) state.layout.cells=state.layout.cells.map(c=>c===id?null:c);
-      saveState();renderSettings();renderWall();
-    };
-    row.querySelectorAll("[data-k]").forEach(inp=>{
-      const k=inp.dataset.k;const ev=inp.type==="checkbox"?"change":"input";
-      inp.addEventListener(ev,()=>{
-        const src=byId(id);
-        src[k]=inp.type==="checkbox"?inp.checked:inp.value;
-        row.classList.toggle("disabled",!src.enabled);
-        saveState();renderWall();
-      });
-    });
-    row.querySelectorAll("[data-th]").forEach(inp=>inp.addEventListener("change",()=>{
-      const src=byId(id), k=inp.dataset.th;
-      let v=parseInt(inp.value,10)||0; v=Math.max(0, k==="h"?Math.min(99,v):Math.min(59,v));
-      src[k]=v; inp.value=k==="h"?v:p2(v);
-      if(timerState[id]){ timerState[id].left=src.mode==="up"?0:durOf(src); timerState[id].running=false; }
-      saveState();renderWall();
-    }));
-    row.querySelectorAll("[data-tmode]").forEach(btn=>btn.onclick=()=>{
-      const src=byId(id); src.mode=btn.dataset.tmode;
-      if(src.mode==="clock") src.s=0;
-      if(timerState[id]){ timerState[id].left=src.mode==="up"?0:durOf(src); timerState[id].running=false; }
-      saveState();renderSettings();renderWall();
-    });
-  });
+  return ctl;
 }
 
-let dragId=null, dragFrom=null, resizeMode=false, selectedId=null;
+/* --- kosmetyka nanoszona bez przebudowy --- */
+function paintTile(src, index){
+  const rec=tileNodes.get(src.id); if(!rec) return;
+  const el=rec.el;
+  el.className="tile t-"+src.type
+    + (src.demo?" demo-tile":"")
+    + (src.fill?" fill":"")
+    + (el.classList.contains("tile-error")?" tile-error":"")
+    + (el.classList.contains("tile-loading")?" tile-loading":"")
+    + (activeAudioId===src.id?" audio-live":"");
+  el.style.borderWidth=(state.borderPx!=null?state.borderPx:2)+"px";
+  const col=safeColor(src.color);
+  if(col) el.style.borderColor=col; else el.style.removeProperty("border-color");
+
+  const nm=el.querySelector(".strip .name");   if(nm) nm.textContent=src.name;
+  const ix=el.querySelector(".strip .idx");    if(ix) ix.textContent=String(index).padStart(2,"0");
+  const dn=el.querySelector(".demo-name");     if(dn) dn.textContent=src.name;
+  const bg=el.querySelector(".ph .big");       if(bg) bg.textContent=src.name;
+  const fl=el.querySelector('[data-a="fill"]');if(fl) fl.classList.toggle("active",!!src.fill);
+  const lp=el.querySelector('[data-a="loop"]');if(lp) lp.classList.toggle("active",src.loop!==false);
+  if(src.type==="timer") paintTimer(src);
+}
+
+function paintTimer(src){
+  const rec=tileNodes.get(src.id); if(!rec) return;
+  const el=rec.el;
+  const nameEl=el.querySelector(".tmr-name"); if(nameEl) nameEl.textContent=src.name;
+  const col=safeColor(src.color)||"#33b5d1";
+  const te=el.querySelector(".tmr-time"); if(!te) return;
+  const v=timerValue(src), done=timerDone(src);
+  const neg=src.mode==="clock" && v<0;
+  te.textContent=(neg?"−":"")+fmtTimer(Math.abs(v));
+  te.style.color = (done||neg) ? "#ff2d21" : col;
+  te.classList.toggle("done", done||neg);
+  const sub=el.querySelector(".tmr-sub");
+  if(sub) sub.textContent=`${t("tmrToLabel")} ${p2(src.h)}:${p2(src.m)}`;
+  const tgl=el.querySelector('[data-tc="toggle"]');
+  if(tgl){
+    const running=runOf(src).status==="running";
+    tgl.querySelector("span").textContent = running ? t("tmrPause") : t("tmrStart");
+    const old=tgl.querySelector("svg");
+    if(old){ const d=document.createElement("div"); d.innerHTML=ico(running?"pause":"play","ico-sm"); old.replaceWith(d.firstElementChild); }
+  }
+  const rst=el.querySelector('[data-tc="reset"] span'); if(rst) rst.textContent=t("tmrReset");
+}
+
+/* --- ściana --- */
+
 function ensureCells(){
-  const need=state.layout.cols*state.layout.rows;const c=state.layout.cells;
-  while(c.length<need)c.push(null);c.length=need;
+  const need=state.layout.cols*state.layout.rows, c=state.layout.cells;
+  while(c.length<need) c.push(null);
+  c.length=need;
   if(!state.layout.sizes) state.layout.sizes={};
 }
-// Rozmieszcza kafelki na siatce cols×rows z rozpiętością (w/h), bez nakładania się.
+
+// Rozmieszcza kafelki na siatce cols×rows, bez nakładania.
 function computeLayout(cols,rows,cells,sizes){
   const covered=new Set(), placed=[];
   for(let i=0;i<cols*rows;i++){
@@ -1313,202 +1614,1343 @@ function computeLayout(cols,rows,cells,sizes){
   }
   return {placed,covered};
 }
+
+function presetArrange(mode, ids){
+  const n=ids.length;
+  if(!n) return null;
+  if(mode==="column") return {cols:1, rows:n, items:ids.map((id,i)=>({id,c:0,r:i,w:1,h:1}))};
+  if(mode==="row")    return {cols:n, rows:1, items:ids.map((id,i)=>({id,c:i,r:0,w:1,h:1}))};
+  if(mode==="focus"){
+    if(n===1) return {cols:1, rows:1, items:[{id:ids[0],c:0,r:0,w:1,h:1}]};
+    const cols=n-1, rows=3;
+    const items=[{id:ids[0], c:0, r:0, w:cols, h:2}];
+    for(let i=1;i<n;i++) items.push({id:ids[i], c:i-1, r:2, w:1, h:1});
+    return {cols, rows, items};
+  }
+  const cols=Math.max(1,Math.ceil(Math.sqrt(n))), rows=Math.ceil(n/cols);
+  return {cols, rows, items:ids.map((id,i)=>({id, c:i%cols, r:Math.floor(i/cols), w:1, h:1}))};
+}
+
+function destroyTile(id){
+  const rec=tileNodes.get(id); if(!rec) return;
+  clearTimeout(rec.loadTimer); clearTimeout(rec.retryTimer);
+  rec.el.remove();
+  tileNodes.delete(id);
+}
+
+function syncTiles(items){
+  const wall=document.getElementById("wall");
+  const wanted=new Set(items.map(p=>p.id));
+  for(const id of [...tileNodes.keys()]) if(!wanted.has(id)) destroyTile(id);
+
+  items.forEach((p,i)=>{
+    const src=byId(p.id); if(!src) return;
+    const sig=tileSig(src);
+    let rec=tileNodes.get(p.id);
+    if(rec && rec.sig!==sig){ destroyTile(p.id); rec=null; }   // zmiana wymuszająca reload
+    if(!rec){
+      const built=createTile(src);
+      rec={el:built.el, sig, iframe:built.iframe, kind:built.kind, retries:0};
+      tileNodes.set(p.id, rec);
+      wall.appendChild(rec.el);
+      if(rec.iframe) watchIframe(p.id);
+    }
+    rec.el.style.gridColumn=`${p.c+1} / span ${p.w}`;
+    rec.el.style.gridRow   =`${p.r+1} / span ${p.h}`;
+    paintTile(src, i+1);
+  });
+  paintIcons();
+}
+
+function renderWall(){
+  const wall=document.getElementById("wall");
+  const overlay=document.getElementById("wallOverlay");
+
+  if(editWall){ renderWallEdit(); return; }
+  overlay.hidden=true; overlay.replaceChildren();
+  const bar=document.getElementById("ewbar"); if(bar) bar.remove();
+
+  wall.className="wall";
+  const act=state.sources.filter(s=>s.enabled);
+
+  if(!act.length){
+    syncTiles([]);
+    showEmptyState();
+    afterWall();
+    return;
+  }
+
+  if(state.layout.mode==="custom"){
+    ensureCells();
+    const cols=Math.max(1,state.layout.cols||3), rows=Math.max(1,state.layout.rows||2);
+    wall.style.gridTemplateColumns=`repeat(${cols},1fr)`;
+    wall.style.gridTemplateRows   =`repeat(${rows},1fr)`;
+    const {placed}=computeLayout(cols,rows,state.layout.cells,state.layout.sizes||{});
+    syncTiles(placed);
+  }else{
+    const arr=presetArrange(state.layout.mode, act.map(s=>s.id));
+    if(arr){
+      wall.style.gridTemplateColumns=`repeat(${arr.cols},1fr)`;
+      wall.style.gridTemplateRows   =`repeat(${arr.rows},1fr)`;
+      syncTiles(arr.items);
+    }
+  }
+  afterWall();
+}
+
+function showEmptyState(){
+  const overlay=document.getElementById("wallOverlay");
+  overlay.hidden=false;
+  overlay.style.placeItems="center";
+  overlay.replaceChildren();
+  const e=document.createElement("div");
+  e.className="empty-state";
+  e.innerHTML=`<div class="es-inner">
+      ${ico("layout-grid","ico-xl")}
+      <div class="es-title">${esc(t("emptyTitle"))}</div>
+      <div class="es-sub">${esc(t("emptySub"))}</div>
+      <button class="es-btn" id="esAdd">${esc(t("emptyBtn"))}</button>
+      <button class="btn-ghost" id="esHelp" style="margin-top:2px">${esc(t("emptyHelp"))}</button>
+    </div>`;
+  overlay.appendChild(e);
+  e.querySelector("#esAdd").onclick =()=>{ renderSettings(); openDrawer(document.getElementById("settingsDrawer")); };
+  e.querySelector("#esHelp").onclick=()=>{ renderHelp();     openDrawer(document.getElementById("helpDrawer")); };
+}
+
+function afterWall(){
+  renderPresetBar();
+  // Nowe iframe'y startują wyciszone.
+  if(activeAudioId && !tileNodes.has(activeAudioId)) activeAudioId=null;
+  markAudio();
+  const ab=document.getElementById("audiobar");
+  if(ab && !ab.hidden) renderAudioPanel();
+}
+
+function renderSettingsIfOpen(){
+  if(document.getElementById("settingsDrawer").classList.contains("show")) renderSettings();
+}
+
+/* --- audio --- */
+
+function ytCmd(iframe, func, args){
+  if(!iframe || !iframe.contentWindow) return;
+  try{
+    iframe.contentWindow.postMessage(
+      JSON.stringify({event:"command", func, args:args||[]}), "https://www.youtube.com");
+  }catch(e){}
+}
+function audioModeOf(src){ return detectPlatform(src.url||"").audio; }
+
+// Odtwarzacz bywa niegotowy tuż po load, stąd kilka prób.
+function applyAudio(id, tries){
+  const rec=tileNodes.get(id), src=byId(id);
+  if(!rec || !rec.iframe || !src) return;
+  const on = activeAudioId===id;
+  if(audioModeOf(src)==="api"){
+    if(on){ ytCmd(rec.iframe,"unMute"); ytCmd(rec.iframe,"setVolume",[state.vol]); }
+    else  { ytCmd(rec.iframe,"mute"); }
+  }
+  const n=(tries||0);
+  if(on && n<4) setTimeout(()=>applyAudio(id,n+1), 400+n*350);
+}
+
+function setSolo(id){
+  const prev=activeAudioId;
+  activeAudioId = (prev===id) ? null : id;
+  if(prev) applyAudio(prev);
+  if(activeAudioId) applyAudio(activeAudioId);
+  renderWall();               // przebuduje tylko te kafelki, które tego wymagają
+  renderAudioPanel();
+}
+
+function muteAll(){
+  const prev=activeAudioId;
+  activeAudioId=null;
+  if(prev) applyAudio(prev);
+  tileNodes.forEach(rec=>{ if(rec.iframe) ytCmd(rec.iframe,"mute"); });
+  renderWall();
+  renderAudioPanel();
+}
+
+function markAudio(){
+  tileNodes.forEach((rec,id)=>rec.el.classList.toggle("audio-live", activeAudioId===id));
+  const el=document.getElementById("abActive");
+  if(el){ const s=activeAudioId?byId(activeAudioId):null; el.textContent = s ? s.name : t("audMuted"); }
+}
+
+function renderAudioPanel(){
+  const list=document.getElementById("abList"); if(!list) return;
+  const ids=[...tileNodes.keys()].filter(id=>tileNodes.get(id).iframe);
+  const volBox=document.getElementById("abVol");
+  const hintEl=document.getElementById("abHint"); if(hintEl) hintEl.textContent=t("audHint");
+  const maEl=document.querySelector("#abMuteAll span"); if(maEl) maEl.textContent=t("muteAll");
+
+  if(!ids.length){
+    list.innerHTML=`<div class="ab-hint">${esc(t("audNoTiles"))}</div>`;
+    if(volBox) volBox.hidden=true;
+    markAudio();
+    return;
+  }
+  list.replaceChildren();
+  ids.forEach(id=>{
+    const src=byId(id); if(!src) return;
+    const mode=audioModeOf(src);
+    const b=document.createElement("button");
+    b.className=`ab-pill t-${src.type}`+(id===activeAudioId?" on":"");
+    b.innerHTML=`<span class="dot"></span>${esc(src.name)}`
+      + (mode==="none" ? ` ${ico("volume-x","ico-sm")}` : mode==="reload" ? ` ${ico("rotate-cw","ico-sm")}` : "");
+    b.title = mode==="none" ? t("audNoCtl") : mode==="reload" ? t("audReloadHint") : "";
+    if(mode==="none"){ b.classList.add("no-ctl"); b.disabled=true; }
+    else b.onclick=()=>setSolo(id);
+    list.appendChild(b);
+  });
+
+  const activeSrc=activeAudioId?byId(activeAudioId):null;
+  if(volBox){
+    volBox.hidden = !(activeSrc && audioModeOf(activeSrc)==="api");
+    const r=document.getElementById("abVolRange");
+    if(r){ r.value=state.vol; document.getElementById("abVolVal").textContent=state.vol+"%"; }
+  }
+  const noteEl=document.getElementById("abNote");
+  if(noteEl){
+    const blind = ids.some(id=>audioModeOf(byId(id))==="none");
+    noteEl.hidden=!blind;
+    if(blind) noteEl.innerHTML=ico("triangle-alert")+"<span>"+esc(t("audExt"))+"</span>";
+  }
+  markAudio();
+  paintIcons();
+}
+
+function toggleAudioBar(force){
+  const ab=document.getElementById("audiobar");
+  const show = (force===undefined) ? ab.hidden : force;
+  ab.hidden=!show;
+  document.getElementById("openAudio").setAttribute("aria-pressed", String(show));
+  document.getElementById("openAudio").classList.toggle("on", show);
+  if(show) renderAudioPanel();
+}
+
+/* --- drag & drop --- */
+let dragId=null, dragFrom=null, dragGhost=null, dropHover=null;
+
+function registerDropTarget(el, handler){
+  el.dataset.drop="1";
+  el.__onDrop=handler;
+}
+function makeDragSource(el, id, fromIndex){
+  el.addEventListener("pointerdown", e=>{
+    if(e.button!==undefined && e.button!==0) return;
+    e.preventDefault();
+    beginDrag(e, id, fromIndex);
+  });
+}
+function moveGhost(x,y){ if(dragGhost){ dragGhost.style.left=x+"px"; dragGhost.style.top=y+"px"; } }
+
+function beginDrag(e, id, from){
+  dragId=id; dragFrom=(from===undefined?null:from);
+  const src=byId(id);
+  dragGhost=document.createElement("div");
+  dragGhost.className="drag-ghost";
+  dragGhost.textContent=src?src.name:"";
+  document.body.appendChild(dragGhost);
+  moveGhost(e.clientX,e.clientY);
+  window.addEventListener("pointermove", onDragMove);
+  window.addEventListener("pointerup", onDragEnd);
+  window.addEventListener("pointercancel", onDragEnd);
+}
+function targetAt(x,y){
+  const el=document.elementFromPoint(x,y);
+  return el ? el.closest("[data-drop]") : null;
+}
+function onDragMove(e){
+  moveGhost(e.clientX,e.clientY);
+  const tgt=targetAt(e.clientX,e.clientY);
+  if(tgt!==dropHover){
+    if(dropHover) dropHover.classList.remove("dragover");
+    dropHover=tgt;
+    if(dropHover) dropHover.classList.add("dragover");
+  }
+}
+function onDragEnd(e){
+  window.removeEventListener("pointermove", onDragMove);
+  window.removeEventListener("pointerup", onDragEnd);
+  window.removeEventListener("pointercancel", onDragEnd);
+  const tgt=targetAt(e.clientX,e.clientY);
+  if(dropHover) dropHover.classList.remove("dragover");
+  if(dragGhost) dragGhost.remove();
+  dragGhost=null; dropHover=null;
+  const id=dragId, from=dragFrom;
+  dragId=null; dragFrom=null;
+  if(tgt && typeof tgt.__onDrop==="function" && id) tgt.__onDrop(id, from);
+}
+
+function dropIntoCell(i, id, from, occupied){
+  const cells=state.layout.cells, sizes=state.layout.sizes;
+  if(from!==null && from!==undefined){        // przenoszenie / zamiana miejscami
+    const tmp=cells[i]; cells[i]=id; cells[from]=tmp;
+  }else{                                      // z palety
+    if(occupied) return false;
+    const existing=cells.indexOf(id);
+    if(existing>-1) cells[existing]=null;
+    cells[i]=id;
+    if(!sizes[id]) sizes[id]={w:1,h:1};
+  }
+  return true;
+}
+
+/* --- edycja układu na ścianie --- */
+function renderWallEdit(){
+  const overlay=document.getElementById("wallOverlay");
+  overlay.hidden=false;
+  overlay.style.placeItems="";
+  overlay.replaceChildren();
+  ensureCells();
+
+  const cols=Math.max(1,state.layout.cols||3), rows=Math.max(1,state.layout.rows||2);
+  overlay.style.gridTemplateColumns=`repeat(${cols},1fr)`;
+  overlay.style.gridTemplateRows   =`repeat(${rows},1fr)`;
+
+  const cells=state.layout.cells, sizes=state.layout.sizes;
+  const {placed,covered}=computeLayout(cols,rows,cells,sizes);
+  const startMap={}; placed.forEach(p=>startMap[p.i]=p);
+
+  for(let i=0;i<cols*rows;i++){
+    if(covered.has(i)) continue;
+    const r=Math.floor(i/cols), c=i%cols, p=startMap[i];
+    const cell=document.createElement("div");
+    if(p){
+      const src=byId(p.id), col=safeColor(src.color)||demoColor(i);
+      cell.className="tile ew-tile";
+      cell.style.gridColumn=`${c+1} / span ${p.w}`;
+      cell.style.gridRow=`${r+1} / span ${p.h}`;
+      cell.style.borderColor=col;
+      cell.style.borderWidth=(state.borderPx!=null?state.borderPx:2)+"px";
+      cell.style.background=`radial-gradient(120% 120% at 30% 20%, ${col}44 0%, ${col}12 45%, #0b0e13 100%)`;
+      cell.innerHTML=`<span class="ew-name">${esc(src.name)}</span>
+        <div class="ew-ctl">
+          <span class="ew-lbl">W</span>
+          <button data-sz="w" data-d="-1" aria-label="-">${ico("minus","ico-sm")}</button><b>${p.w}</b>
+          <button data-sz="w" data-d="1" aria-label="+">${ico("plus","ico-sm")}</button>
+          <span class="ew-lbl">H</span>
+          <button data-sz="h" data-d="-1" aria-label="-">${ico("minus","ico-sm")}</button><b>${p.h}</b>
+          <button data-sz="h" data-d="1" aria-label="+">${ico("plus","ico-sm")}</button>
+          <button class="ew-del" title="${esc(t("titleDel"))}" aria-label="${esc(t("titleDel"))}">${ico("trash-2","ico-sm")}</button>
+        </div>`;
+      cell.querySelectorAll("[data-sz]").forEach(btn=>{ btn.onclick=e=>{
+        e.stopPropagation();
+        const k=btn.dataset.sz, d=parseInt(btn.dataset.d,10);
+        const cur=sizes[p.id]||{w:1,h:1}, nw={w:cur.w||1,h:cur.h||1};
+        nw[k]=Math.max(1,Math.min(k==="w"?cols:rows,(nw[k]||1)+d));
+        sizes[p.id]=nw; saveState(); renderWallEdit();
+      };});
+      cell.querySelector(".ew-del").onclick=e=>{
+        e.stopPropagation(); cells[i]=null; delete sizes[p.id]; saveState(); renderWallEdit();
+      };
+      makeDragSource(cell.querySelector(".ew-name"), p.id, i);
+    }else{
+      cell.className="tile ew-empty";
+      cell.style.gridColumn=`${c+1}`; cell.style.gridRow=`${r+1}`;
+      cell.innerHTML=`<span class="ew-hint">${esc(t("dropScene"))}</span>`;
+    }
+    registerDropTarget(cell,(id,from)=>{
+      if(dropIntoCell(i,id,from,!!startMap[i])){ saveState(); renderWallEdit(); }
+    });
+    overlay.appendChild(cell);
+  }
+  buildEditBar();
+}
+
+function buildEditBar(){
+  let bar=document.getElementById("ewbar");
+  if(!bar){ bar=document.createElement("div"); bar.id="ewbar"; bar.className="ewbar"; document.body.appendChild(bar); }
+  const placedIds=new Set(state.layout.cells.filter(Boolean));
+  const avail=state.sources.filter(s=>s.enabled && !placedIds.has(s.id));
+  const chips=avail.map(s=>
+    `<span class="ewchip" data-id="${esc(s.id)}"><span class="cd" style="background:${safeColor(s.color)||'#33b5d1'}"></span>${esc(s.name)}</span>`).join("");
+  bar.innerHTML=`
+    <div class="grp"><span class="lbl">${esc(t("cols"))}</span>
+      <button class="st" data-ew="cols" data-d="-1" aria-label="-">${ico("minus","ico-sm")}</button>
+      <span class="val">${state.layout.cols}</span>
+      <button class="st" data-ew="cols" data-d="1" aria-label="+">${ico("plus","ico-sm")}</button></div>
+    <div class="grp"><span class="lbl">${esc(t("rows"))}</span>
+      <button class="st" data-ew="rows" data-d="-1" aria-label="-">${ico("minus","ico-sm")}</button>
+      <span class="val">${state.layout.rows}</span>
+      <button class="st" data-ew="rows" data-d="1" aria-label="+">${ico("plus","ico-sm")}</button></div>
+    ${chips?`<div class="ewpal">${chips}</div>`:""}
+    <button class="done" id="ewDone">${ico("check","ico-sm")} ${esc(t("done"))}</button>`;
+  bar.querySelectorAll("[data-ew]").forEach(b=>b.onclick=()=>{
+    const k=b.dataset.ew, d=parseInt(b.dataset.d,10);
+    state.layout[k]=Math.min(12,Math.max(1,(state.layout[k]||1)+d));
+    ensureCells(); saveState(); renderWallEdit();
+  });
+  bar.querySelectorAll(".ewchip").forEach(ch=>makeDragSource(ch, ch.dataset.id, null));
+  bar.querySelector("#ewDone").onclick=()=>{
+    editWall=false;
+    const b=document.getElementById("ewbar"); if(b) b.remove();
+    renderWall();
+  };
+}
+
+/* --- edytor układu --- */
+let resizeMode=false, selectedId=null;
+
 function renderSizeBar(){
-  const bar=document.getElementById("sizeBar");
-  if(!bar) return;
+  const bar=document.getElementById("sizeBar"); if(!bar) return;
   if(!resizeMode){ bar.hidden=true; return; }
   bar.hidden=false;
   const cells=state.layout.cells, sizes=state.layout.sizes;
   if(selectedId && !cells.includes(selectedId)) selectedId=null;
   const src=selectedId?byId(selectedId):null;
-  if(!src){ bar.innerHTML=`<span class="hint">${t("pickTile")}</span>`; return; }
+  if(!src){ bar.innerHTML=`<span class="hint">${esc(t("pickTile"))}</span>`; return; }
   const sz=sizes[selectedId]||{w:1,h:1};
-  bar.innerHTML=`<span class="sel-name"><span class="cdot ${src.type}" style="background:var(--${src.type==="main"?"pgm":src.type==="secondary"?"pvw":"aux"})"></span>${esc(src.name)}</span>
-    <span class="grp"><span class="sz-lbl">${t("wLbl")}</span>
-      <button data-sz="w" data-d="-1">–</button><b>${sz.w||1}</b><button data-sz="w" data-d="1">+</button></span>
-    <span class="grp"><span class="sz-lbl">${t("hLbl")}</span>
-      <button data-sz="h" data-d="-1">–</button><b>${sz.h||1}</b><button data-sz="h" data-d="1">+</button></span>`;
-  bar.querySelectorAll("[data-sz]").forEach(btn=>{
-    btn.onclick=()=>{
-      const k=btn.dataset.sz,d=parseInt(btn.dataset.d,10);
-      const cur=sizes[selectedId]||{w:1,h:1};
-      const nw={w:cur.w||1,h:cur.h||1};
-      const max=k==="w"?state.layout.cols:state.layout.rows;
-      nw[k]=Math.max(1,Math.min(max,(nw[k]||1)+d));
-      sizes[selectedId]=nw;renderEditor();
-    };
+  bar.innerHTML=`<span class="sel-name"><span class="cdot" style="background:${typeColor(src.type)}"></span>${esc(src.name)}</span>
+    <span class="grp"><span class="sz-lbl">${esc(t("wLbl"))}</span>
+      <button data-sz="w" data-d="-1" aria-label="-">${ico("minus","ico-sm")}</button><b>${sz.w||1}</b>
+      <button data-sz="w" data-d="1" aria-label="+">${ico("plus","ico-sm")}</button></span>
+    <span class="grp"><span class="sz-lbl">${esc(t("hLbl"))}</span>
+      <button data-sz="h" data-d="-1" aria-label="-">${ico("minus","ico-sm")}</button><b>${sz.h||1}</b>
+      <button data-sz="h" data-d="1" aria-label="+">${ico("plus","ico-sm")}</button></span>`;
+  bar.querySelectorAll("[data-sz]").forEach(btn=>btn.onclick=()=>{
+    const k=btn.dataset.sz, d=parseInt(btn.dataset.d,10);
+    const cur=sizes[selectedId]||{w:1,h:1}, nw={w:cur.w||1,h:cur.h||1};
+    nw[k]=Math.max(1,Math.min(k==="w"?state.layout.cols:state.layout.rows,(nw[k]||1)+d));
+    sizes[selectedId]=nw; saveState(); renderEditor();
   });
 }
 
 function renderEditor(){
+  renderPresetList(); renderPresetBar();
   document.getElementById("customEditor").hidden = state.layout.mode!=="custom";
-  document.querySelectorAll(".preset-btn").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.preset===state.layout.mode)));
+  document.querySelectorAll(".preset-btn").forEach(b=>
+    b.setAttribute("aria-pressed", String(b.dataset.preset===state.layout.mode)));
   if(state.layout.mode!=="custom") return;
 
   ensureCells();
-  const cols=state.layout.cols, rows=state.layout.rows, cells=state.layout.cells, sizes=state.layout.sizes;
+  const cols=state.layout.cols, rows=state.layout.rows;
+  const cells=state.layout.cells, sizes=state.layout.sizes;
   document.getElementById("colsVal").textContent=cols;
   document.getElementById("rowsVal").textContent=rows;
   document.getElementById("sizeToggle").setAttribute("aria-expanded",String(resizeMode));
 
   const grid=document.getElementById("editorGrid");
-  grid.style.aspectRatio="16/9";
-  grid.style.gridAutoRows="";grid.style.gridAutoFlow="";
   grid.style.gridTemplateColumns=`repeat(${cols},1fr)`;
-  grid.style.gridTemplateRows=`repeat(${rows},1fr)`;
-  grid.innerHTML="";
+  grid.style.gridTemplateRows   =`repeat(${rows},1fr)`;
+  grid.replaceChildren();
 
   const {placed,covered}=computeLayout(cols,rows,cells,sizes);
   const startMap={}; placed.forEach(p=>startMap[p.i]=p);
 
   for(let i=0;i<cols*rows;i++){
     if(covered.has(i)) continue;
-    const r=Math.floor(i/cols), c=i%cols;
+    const r=Math.floor(i/cols), c=i%cols, p=startMap[i];
     const cell=document.createElement("div");
-    cell.dataset.i=i;
-    const p=startMap[i];
     if(p){
       const src=byId(p.id);
       cell.className=`cell filled f-${src.type}`;
       cell.style.gridColumn=`${c+1} / span ${p.w}`;
       cell.style.gridRow=`${r+1} / span ${p.h}`;
-      cell.innerHTML=`<span class="cname" draggable="true">${esc(src.name)}</span>`
-        +`<button class="clear" title="${t("titleDel")}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>`;
+      cell.innerHTML=`<span class="cname">${esc(src.name)}</span>
+        <button class="clear" title="${esc(t("titleDel"))}" aria-label="${esc(t("titleDel"))}">${ico("x","ico-sm")}</button>`;
       if(resizeMode){
         cell.classList.add("pickable");
         if(selectedId===p.id) cell.classList.add("selected");
-        cell.onclick=e=>{ if(e.target.closest(".clear"))return; selectedId=p.id; renderEditor(); };
+        cell.onclick=e=>{ if(e.target.closest(".clear")) return; selectedId=p.id; renderEditor(); };
       }
-      cell.querySelector(".clear").onclick=e=>{e.stopPropagation();cells[i]=null;delete sizes[p.id];if(selectedId===p.id)selectedId=null;renderEditor();};
-      cell.querySelector(".cname").addEventListener("dragstart",e=>{dragId=p.id;dragFrom=i;e.dataTransfer.effectAllowed="move";});
+      cell.querySelector(".clear").onclick=e=>{
+        e.stopPropagation(); cells[i]=null; delete sizes[p.id];
+        if(selectedId===p.id) selectedId=null;
+        saveState(); renderEditor();
+      };
+      makeDragSource(cell.querySelector(".cname"), p.id, i);
     }else{
       cell.className="cell";
-      cell.style.gridColumn=`${c+1}`;cell.style.gridRow=`${r+1}`;
-      cell.innerHTML=`<span class="empty-hint">${t("dropScene")}</span>`;
+      cell.style.gridColumn=`${c+1}`; cell.style.gridRow=`${r+1}`;
+      cell.innerHTML=`<span class="empty-hint">${esc(t("dropScene"))}</span>`;
     }
-    cell.addEventListener("dragover",e=>{e.preventDefault();cell.classList.add("dragover");});
-    cell.addEventListener("dragleave",()=>cell.classList.remove("dragover"));
-    cell.addEventListener("drop",e=>{
-      e.preventDefault();cell.classList.remove("dragover");
-      if(!dragId)return;
-      const existing=cells.indexOf(dragId);
-      if(dragFrom!==null){                 // przenoszenie/zamiana kafelka
-        const tmp=cells[i];cells[i]=dragId;cells[dragFrom]=tmp;
-      }else{                               // z palety
-        if(startMap[i]){ dragId=null;return; } // nie upuszczaj na zajęty
-        if(existing>-1) cells[existing]=null;
-        cells[i]=dragId; if(!sizes[dragId]) sizes[dragId]={w:1,h:1};
-      }
-      dragId=null;dragFrom=null;renderEditor();
+    registerDropTarget(cell,(id,from)=>{
+      if(dropIntoCell(i,id,from,!!startMap[i])){ saveState(); renderEditor(); }
     });
     grid.appendChild(cell);
   }
 
   renderSizeBar();
 
-  const pal=document.getElementById("palette");const act=activeSources();
-  if(!act.length){pal.innerHTML=`<div class="palette-empty">${t("palEmpty")}</div>`;return;}
-  pal.innerHTML="";
+  const pal=document.getElementById("palette"), act=activeSources();
+  pal.replaceChildren();
+  if(!act.length){ pal.innerHTML=`<div class="palette-empty">${esc(t("palEmpty"))}</div>`; return; }
   act.forEach(s=>{
-    const used=cells.includes(s.id);
     const chip=document.createElement("div");
-    chip.className="chip"+(used?" used":"");chip.draggable=true;
-    chip.innerHTML=`<span class="cdot ${s.type}"></span>${esc(s.name)}`;
-    chip.addEventListener("dragstart",e=>{dragId=s.id;dragFrom=null;e.dataTransfer.effectAllowed="copy";});
+    chip.className="chip"+(cells.includes(s.id)?" used":"");
+    chip.innerHTML=`<span class="cdot" style="background:${typeColor(s.type)}"></span>${esc(s.name)}`;
+    makeDragSource(chip, s.id, null);
     pal.appendChild(chip);
   });
 }
 
-function openDrawer(el){document.getElementById("scrim").classList.add("show");el.classList.add("show");el.setAttribute("aria-hidden","false");}
+/* --- ustawienia --- */
+function urlHintFor(url){
+  const p=detectPlatform(url);
+  if(p.key==="empty") return {cls:"",     icon:"info",          text:t("urlEmpty")};
+  if(p.key==="bad")   return {cls:"bad",  icon:"circle-alert",  text:t("urlUnknown")};
+  if(p.key==="other") return {cls:"warn", icon:"triangle-alert",text:t("urlUnknown")};
+  return {cls:"ok", icon:"check", text:t("urlOk")+": "+p.label};
+}
+function paintUrlHint(box, url){
+  const h=urlHintFor(url);
+  box.className="url-hint "+h.cls;
+  box.innerHTML=ico(h.icon)+"<span>"+esc(h.text)+"</span>";
+}
+
+function switchRow(id, title, desc, checked){
+  return `<div class="switch-row">
+    <label class="switch"><input type="checkbox" id="${id}" ${checked?"checked":""}>
+      <span class="track"></span><span class="thumb"></span></label>
+    <div class="sr-main"><div class="sr-t">${esc(title)}</div><div class="sr-d">${esc(desc)}</div></div>
+  </div>`;
+}
+
+function renderSettings(){
+  const body=document.getElementById("settingsBody");
+  const locked=!!state.opts.locked;
+  const groups=[["main",t("grpMain")],["secondary",t("grpSecondary")],["studio",t("grpStudio")],["timer",t("grpTimer")]];
+
+  let html=`
+    <div class="group-label">${ico("share-2","ico-sm")}${esc(t("ioTitle"))}</div>
+    <div class="io-row">
+      <button id="ioExport">${ico("download","ico-sm")}${esc(t("exportBtn"))}</button>
+      <button id="ioImport">${ico("upload","ico-sm")}${esc(t("importBtn"))}</button>
+      <button id="ioLink">${ico("link","ico-sm")}${esc(t("copyLink"))}</button>
+    </div>
+
+    <div class="group-label">${ico("sliders-horizontal","ico-sm")}${esc(t("optsTitle"))}</div>
+    ${switchRow("optRetry", t("autoRetryT"), t("autoRetryD"), state.opts.autoRetry)}
+    ${switchRow("optAwake", t("keepAwakeT"), t("keepAwakeD"), state.opts.keepAwake)}
+    ${switchRow("optLock",  t("lockT"),      t("lockD"),      locked)}
+    <div class="switch-row">
+      <div class="sr-main"><div class="sr-t">${esc(t("borderWidthTitle"))}</div>
+        <div class="sr-d">${esc(t("borderWidthDesc"))}</div></div>
+      <div class="stepper">
+        <button id="bwDec" aria-label="-">${ico("minus","ico-sm")}</button>
+        <span class="val" id="bwVal">${state.borderPx}</span>
+        <button id="bwInc" aria-label="+">${ico("plus","ico-sm")}</button>
+      </div>
+    </div>`;
+
+  groups.forEach(([type,label])=>{
+    const list=state.sources.filter(s=>s.type===type);
+    if(!list.length) return;
+    html+=`<div class="group-label"><span class="tag ${type}"></span>${esc(label)}</div>`;
+    list.forEach(s=>{
+      const mid = s.type==="timer"
+        ? `<div class="tmr-fields">
+             <div class="tmr-hms">
+               <input data-th="h" type="number" min="0" max="99" value="${s.h||0}" aria-label="h"><span>:</span>
+               <input data-th="m" type="number" min="0" max="59" value="${p2(s.m)}" aria-label="min">${
+                 s.mode==="clock" ? "" : `<span>:</span><input data-th="s" type="number" min="0" max="59" value="${p2(s.s)}" aria-label="s">`}
+             </div>
+             <div class="seg tmr-mode">
+               <button data-tmode="down"  aria-pressed="${(!s.mode||s.mode==='down')}">${esc(t("tmrDown"))}</button>
+               <button data-tmode="up"    aria-pressed="${s.mode==='up'}">${esc(t("tmrUp"))}</button>
+               <button data-tmode="clock" aria-pressed="${s.mode==='clock'}">${esc(t("tmrClock"))}</button>
+             </div>
+           </div>`
+        : `<input class="url" data-k="url" value="${esc(s.url)}" placeholder="${esc(t("phUrl"))}"
+                  spellcheck="false" aria-label="URL"${locked?" disabled":""}>
+           <div class="url-hint" data-urlhint></div>`;
+      html+=`<div class="src ${s.enabled?"":"disabled"}" data-id="${esc(s.id)}">
+        <label class="switch"><input type="checkbox" data-k="enabled" ${s.enabled?"checked":""}
+          aria-label="${esc(s.name)}"><span class="track"></span><span class="thumb"></span></label>
+        <div class="src-main">
+          <input class="name" data-k="name" value="${esc(s.name)}"
+                 placeholder="${esc(s.type==="timer"?t("timerLabel"):t("phName"))}" aria-label="${esc(t("phName"))}"${locked?" disabled":""}>
+          ${mid}
+        </div>
+        <label class="clr-pick" title="${esc(t("borderColor"))}">
+          <input type="color" data-k="color" value="${safeColor(s.color)||'#33b5d1'}" aria-label="${esc(t("borderColor"))}">
+          <span class="clr-swatch" style="background:${safeColor(s.color)||'#33b5d1'}"></span></label>
+        <button class="del" data-del title="${esc(t("titleDel"))}" aria-label="${esc(t("titleDel"))}">${ico("trash-2","ico-sm")}</button>
+      </div>`;
+    });
+  });
+
+  body.innerHTML = html + `
+    <div class="note">${ico("triangle-alert","ico-sm")}<div>${esc(t("note"))}</div></div>
+    <div class="settings-sep"></div>
+    <button class="btn-danger" id="resetDefaults" style="width:100%">
+      ${ico("trash-2","ico-sm")} ${esc(t("resetBtn"))}</button>`;
+
+  /* --- podpięcie zdarzeń --- */
+  body.querySelector("#ioExport").onclick = exportConfig;
+  body.querySelector("#ioImport").onclick = ()=>document.getElementById("importFile").click();
+  body.querySelector("#ioLink").onclick   = copyShareLink;
+
+  const bind=(id,fn)=>{ const el=body.querySelector("#"+id); if(el) el.onchange=()=>fn(el.checked); };
+  bind("optRetry", v=>{ state.opts.autoRetry=v; saveState(); });
+  bind("optAwake", v=>{ state.opts.keepAwake=v; saveState(); v?requestWakeLock():releaseWakeLock(); });
+  bind("optLock",  v=>{ state.opts.locked=v;   saveState(); renderSettings(); });
+
+  const bwStep=d=>{
+    state.borderPx=Math.max(0,Math.min(8,(state.borderPx||0)+d)); saveState();
+    const v=body.querySelector("#bwVal"); if(v) v.textContent=state.borderPx;
+    tileNodes.forEach(rec=>rec.el.style.borderWidth=state.borderPx+"px");
+  };
+  body.querySelector("#bwDec").onclick=()=>bwStep(-1);
+  body.querySelector("#bwInc").onclick=()=>bwStep(1);
+
+  body.querySelector("#resetDefaults").onclick=()=>{
+    if(!confirm(t("confirmReset"))) return;
+    const l=state.lang, o=state.opts;
+    state=DEFAULTS(); state.lang=l; state.opts=o;
+    saveState(); renderSettings(); renderWall();
+  };
+
+  body.querySelectorAll(".src").forEach(row=>{
+    const id=row.dataset.id;
+    const hint=row.querySelector("[data-urlhint]");
+    const urlInput=row.querySelector('input[data-k="url"]');
+    if(hint && urlInput) paintUrlHint(hint, urlInput.value);
+
+    const clr=row.querySelector('input[type="color"]');
+    if(clr) clr.addEventListener("input",()=>{
+      const sw=row.querySelector(".clr-swatch"); if(sw) sw.style.background=clr.value;
+    });
+
+    const del=row.querySelector("[data-del]");
+    if(del) del.onclick=()=>{
+      destroyTile(id);
+      state.sources=state.sources.filter(s=>s.id!==id);
+      if(state.layout.cells) state.layout.cells=state.layout.cells.map(c=>c===id?null:c);
+      delete state.layout.sizes[id];
+      saveState(); renderSettings(); renderWall();
+    };
+
+    row.querySelectorAll("[data-k]").forEach(inp=>{
+      const k=inp.dataset.k, ev=inp.type==="checkbox"?"change":"input";
+      inp.addEventListener(ev,()=>{
+        const src=byId(id); if(!src) return;
+        if(k==="enabled")     src.enabled=inp.checked;
+        else if(k==="color")  src.color=safeColor(inp.value);
+        else                  src[k]=inp.value;
+        row.classList.toggle("disabled",!src.enabled);
+        if(k==="url" && hint) paintUrlHint(hint, inp.value);
+        saveState();
+        // Nazwa i kolor bez przeładowania.
+        if(k==="name" || k==="color"){ const rec=tileNodes.get(id); if(rec) paintTile(src, 1); }
+        else renderWall();
+      });
+    });
+
+    row.querySelectorAll("[data-th]").forEach(inp=>inp.addEventListener("change",()=>{
+      const src=byId(id), k=inp.dataset.th;
+      let v=parseInt(inp.value,10)||0;
+      v=Math.max(0, k==="h"?Math.min(99,v):Math.min(59,v));
+      src[k]=v; inp.value = k==="h" ? v : p2(v);
+      timerReset(src); saveState(); renderWall();
+    }));
+
+    row.querySelectorAll("[data-tmode]").forEach(btn=>btn.onclick=()=>{
+      const src=byId(id);
+      src.mode=btn.dataset.tmode;
+      if(src.mode==="clock") src.s=0;
+      timerReset(src); saveState(); renderSettings(); renderWall();
+    });
+  });
+
+  paintIcons();
+}
+
+/* --- presety --- */
+
+// Klucze posortowane, żeby kolejność pól nie udawała różnicy.
+function canon(v){
+  if(Array.isArray(v)) return "["+v.map(canon).join(",")+"]";
+  if(v && typeof v==="object")
+    return "{"+Object.keys(v).sort().map(k=>JSON.stringify(k)+":"+canon(v[k])).join(",")+"}";
+  return JSON.stringify(v===undefined?null:v);
+}
+
+function captureView(){
+  return {
+    layout : {
+      mode : state.layout.mode,
+      cols : state.layout.cols,
+      rows : state.layout.rows,
+      cells: (state.layout.cells||[]).slice(),
+      order: [],
+      sizes: JSON.parse(JSON.stringify(state.layout.sizes||{})),
+    },
+    enabled: Object.fromEntries(state.sources.map(s=>[s.id, !!s.enabled])),
+  };
+}
+function viewSig(v){ return canon({l:v.layout, e:v.enabled}); }
+
+function activePresetObj(){
+  return state.activePreset ? state.presets.find(p=>p.id===state.activePreset) : null;
+}
+// Czy to, co widać, różni się od zapisanego presetu?
+function presetDirty(){
+  const p=activePresetObj();
+  return p ? viewSig(p)!==viewSig(captureView()) : false;
+}
+
+function savePreset(name){
+  if(state.presets.length>=24){ toast(t("presetLimit"), true); return null; }
+  const v=captureView();
+  const p={ id:"pst"+Date.now(), name:name||(t("presetDefault")+" "+(state.presets.length+1)),
+            layout:v.layout, enabled:v.enabled };
+  state.presets.push(p);
+  state.activePreset=p.id;
+  saveState(); renderPresetBar(); renderPresetList();
+  toast(t("presetSaved"));
+  return p;
+}
+function updatePreset(id){
+  const p=state.presets.find(x=>x.id===id); if(!p) return;
+  const v=captureView();
+  p.layout=v.layout; p.enabled=v.enabled;
+  state.activePreset=id;
+  saveState(); renderPresetBar(); renderPresetList();
+  toast(t("presetUpdated"));
+}
+function deletePreset(id){
+  if(!confirm(t("confirmDelPreset"))) return;
+  state.presets=state.presets.filter(p=>p.id!==id);
+  if(state.activePreset===id) state.activePreset=null;
+  saveState(); renderPresetBar(); renderPresetList();
+  toast(t("presetDeleted"));
+}
+function movePreset(id, dir){
+  const i=state.presets.findIndex(p=>p.id===id);
+  const j=i+dir;
+  if(i<0 || j<0 || j>=state.presets.length) return;
+  const [p]=state.presets.splice(i,1);
+  state.presets.splice(j,0,p);
+  saveState(); renderPresetBar(); renderPresetList();
+}
+
+function applyPreset(id){
+  const p=state.presets.find(x=>x.id===id); if(!p) return;
+  state.layout = {
+    mode : p.layout.mode,
+    cols : p.layout.cols,
+    rows : p.layout.rows,
+    cells: (p.layout.cells||[]).slice(),
+    order: [],
+    sizes: JSON.parse(JSON.stringify(p.layout.sizes||{})),
+  };
+  state.sources.forEach(s=>{ if(s.id in (p.enabled||{})) s.enabled=!!p.enabled[s.id]; });
+  state.activePreset=id;
+  editWall=false;
+  saveState();
+  renderWall();
+  renderPresetList();
+  renderSettingsIfOpen();
+  if(document.getElementById("layoutDrawer").classList.contains("show")) renderEditor();
+}
+function applyPresetByIndex(n){
+  const p=state.presets[n-1];
+  if(p) applyPreset(p.id);
+}
+
+/* ---------- pasek presetów pod nagłówkiem ---------- */
+function renderPresetBar(){
+  const bar=document.getElementById("presetbar");
+  if(!bar) return;
+  if(!state.presets.length){ bar.hidden=true; return; }
+  bar.hidden=false;
+  const dirty=presetDirty();
+  bar.replaceChildren();
+
+  state.presets.forEach((p,i)=>{
+    const on = p.id===state.activePreset;
+    const b=document.createElement("button");
+    b.className="pchip"+(on?" on":"")+(on&&dirty?" dirty":"");
+    b.title = on&&dirty ? t("presetDirtyTitle") : t("applyPreset");
+    b.setAttribute("aria-pressed", String(on));
+    b.innerHTML=`<span class="pnum">${i+1}</span><span class="pname"></span>`
+      + (on&&dirty ? `<span class="pdot" aria-hidden="true"></span>` : "");
+    b.querySelector(".pname").textContent=p.name;
+    b.onclick=()=>applyPreset(p.id);
+    bar.appendChild(b);
+  });
+
+  const add=document.createElement("button");
+  add.className="padd";
+  add.title=t("savePreset");
+  add.setAttribute("aria-label",t("savePreset"));
+  add.innerHTML=ico("plus","ico-sm");
+  add.onclick=()=>savePreset();
+  bar.appendChild(add);
+
+  if(dirty){
+    const tag=document.createElement("span");
+    tag.className="pdirty";
+    tag.title=t("presetDirtyTitle");
+    tag.textContent=t("presetDirty");
+    bar.appendChild(tag);
+  }
+}
+
+/* ---------- zarządzanie presetami w szufladzie układu ---------- */
+function renderPresetList(){
+  const box=document.getElementById("presetList");
+  if(!box) return;
+  box.replaceChildren();
+
+  if(!state.presets.length){
+    const e=document.createElement("div");
+    e.className="pset-empty";
+    e.textContent=t("noPresets");
+    box.appendChild(e);
+    return;
+  }
+  const dirty=presetDirty();
+  state.presets.forEach((p,i)=>{
+    const on=p.id===state.activePreset;
+    const row=document.createElement("div");
+    row.className="pset"+(on?" on":"");
+    row.innerHTML=`
+      <button class="pset-apply" title="${esc(t("applyPreset"))}"><span class="pset-num">${i+1}</span></button>
+      <input class="pset-name" value="${esc(p.name)}" placeholder="${esc(t("presetNamePh"))}" aria-label="${esc(t("presetNamePh"))}">
+      ${on&&dirty?`<span class="pset-flag" title="${esc(t("presetDirtyTitle"))}">${t("presetDirty")}</span>`:""}
+      <button class="pset-btn" data-p="up"   title="${esc(t("moveUp"))}"   aria-label="${esc(t("moveUp"))}">${ico("chevron-up","ico-sm")}</button>
+      <button class="pset-btn" data-p="down" title="${esc(t("moveDown"))}" aria-label="${esc(t("moveDown"))}">${ico("chevron-down","ico-sm")}</button>
+      <button class="pset-btn" data-p="save" title="${esc(t("updatePreset"))}" aria-label="${esc(t("updatePreset"))}">${ico("save","ico-sm")}</button>
+      <button class="pset-btn del" data-p="del" title="${esc(t("deletePreset"))}" aria-label="${esc(t("deletePreset"))}">${ico("trash-2","ico-sm")}</button>`;
+    row.querySelector(".pset-apply").onclick=()=>applyPreset(p.id);
+    const nameInput=row.querySelector(".pset-name");
+    nameInput.addEventListener("input",()=>{ p.name=nameInput.value; saveState(); renderPresetBar(); });
+    row.querySelector('[data-p="up"]').onclick   =()=>movePreset(p.id,-1);
+    row.querySelector('[data-p="down"]').onclick =()=>movePreset(p.id, 1);
+    row.querySelector('[data-p="save"]').onclick =()=>updatePreset(p.id);
+    row.querySelector('[data-p="del"]').onclick  =()=>deletePreset(p.id);
+    box.appendChild(row);
+  });
+  paintIcons();
+}
+
+/* --- instrukcja --- */
+function keyRow(k,d){ return `<kbd>${k}</kbd><span class="kd">${d}</span>`; }
+
+function helpHTML(){
+  const pl = state.lang==="pl";
+  const combo = MOD.combo + MOD.sep;
+  const K = `<div class="keys">
+    ${keyRow("1 – 9", pl?"Dźwięk z kafelka o tym numerze (solo)":"Sound from the tile with that number (solo)")}
+    ${keyRow("0",     pl?"Wycisz wszystko":"Mute everything")}
+    ${keyRow(kbdShift("1 – 9"), pl?"Przełącz preset widoku":"Switch view preset")}
+    ${keyRow("A",     pl?"Panel audio":"Audio panel")}
+    ${keyRow("L",     pl?"Panel układu":"Layout panel")}
+    ${keyRow("S",     pl?"Ustawienia":"Settings")}
+    ${keyRow("H",     pl?"Ta instrukcja":"These instructions")}
+    ${keyRow("R",     pl?"Odśwież wszystkie podglądy":"Reload every preview")}
+    ${keyRow("F",     pl?"Pełny ekran całej ściany":"Fullscreen the whole wall")}
+    ${keyRow(MOD.esc, pl?"Zamknij panel / wyjdź z pełnego ekranu":"Close panel / leave fullscreen")}
+  </div>
+  <div class="hbox"><b>${esc(t("kbdAltT"))}.</b> ${esc(t("kbdAltD")).replace(/%C/g, combo)}</div>
+  <div class="hbox">${esc(t("kbdLayout"))}</div>
+  <div class="hbox">${ico("info","ico-sm")} <b>${esc(t("kbdMacT"))}.</b> ${esc(t("kbdMacD"))}</div>`;
+
+  if(pl) return `
+    <div class="hbox">${ico("zap","ico-sm")} <b>W trzech krokach:</b> otwórz <b>Ustawienia</b> (koło zębate) →
+      <b>Dodaj podgląd</b> i wklej link → wybierz <b>Układ</b>. Konfiguracja zapisuje się sama w przeglądarce.</div>
+
+    <h3>${ico("tv","ico-sm")} Dodawanie podglądów</h3>
+    <p>Wklej zwykły link — adres do osadzenia zbuduje się sam. Obsługiwane są:</p>
+    <ul>
+      <li><b>YouTube</b> — filmy, transmisje na żywo, Shorts, playlisty (<code>watch</code>, <code>live</code>, <code>youtu.be</code>)</li>
+      <li><b>Twitch</b> — kanały, VOD-y i klipy</li>
+      <li><b>Kick</b> — kanały</li>
+      <li><b>Vimeo</b> — filmy</li>
+      <li><b>Spotify</b> i <b>Apple Music</b> — utwory, albumy, playlisty, podcasty</li>
+      <li>dowolny inny adres — osadzimy go bez zmian, o ile serwis na to pozwala</li>
+    </ul>
+    <p>Pod polem adresu pojawi się podpowiedź, jaki serwis został rozpoznany. Przełącznik po lewej włącza
+      i wyłącza scenę, a kolorowy kwadrat ustawia kolor ramki kafelka.</p>
+
+    <h3>${ico("layout-grid","ico-sm")} Układy</h3>
+    <ul>
+      <li><b>Równa siatka</b> — wszystkie kafelki tej samej wielkości, automatycznie.</li>
+      <li><b>Fokus</b> — pierwsza scena duża, reszta jako pasek miniatur pod spodem.</li>
+      <li><b>Kolumna</b> / <b>Rząd</b> — wszystko jedno pod drugim albo obok siebie.</li>
+      <li><b>Własny</b> — ustawiasz liczbę kolumn i wierszy, przeciągasz sceny na siatkę
+        i nadajesz im rozpiętość (W = szerokość, H = wysokość w komórkach).</li>
+    </ul>
+    <p><b>Edytuj na widoku głównym</b> pozwala układać kafelki bezpośrednio na ścianie, w prawdziwych proporcjach.
+      Przeciąganie działa myszą i palcem.</p>
+
+    <h3>${ico("sliders-horizontal","ico-sm")} Sterowanie kafelkiem</h3>
+    <p>Najedź na kafelek — w prawym górnym rogu pojawią się przyciski:</p>
+    <ul>
+      <li>${ico("expand","ico-sm")} <b>Wypełnij</b> — obraz zajmuje cały kafelek, bez czarnych pasów (przycina brzegi).</li>
+      <li>${ico("repeat","ico-sm")} <b>Pętla</b> — zapętlone odtwarzanie (tylko YouTube).</li>
+      <li>${ico("eye-off","ico-sm")} <b>Ukryj</b> — wyłącza scenę, np. gdy źródło padło.</li>
+      <li>${ico("rotate-cw","ico-sm")} <b>Odśwież</b> — przeładowuje tylko ten jeden kafelek.</li>
+      <li>${ico("maximize","ico-sm")} <b>Pełny ekran</b> · ${ico("external-link","ico-sm")} <b>Otwórz w nowej karcie</b></li>
+    </ul>
+
+    <h3>${ico("volume-2","ico-sm")} Dźwięk</h3>
+    <p>Wszystkie kafelki startują wyciszone — inaczej dostałbyś kakofonię. Kliknij <b>Audio</b> w nagłówku
+      i wybierz scenę, którą chcesz słyszeć; drugie kliknięcie ją wycisza.</p>
+    <ul>
+      <li><b>YouTube</b> — sterowany natywnie, bez przeładowania, z suwakiem głośności.</li>
+      <li>${ico("rotate-cw","ico-sm")} <b>Twitch, Kick, Vimeo</b> — te odtwarzacze nie mają publicznego API,
+        więc włączenie dźwięku przeładowuje ten jeden kafelek (reszta ściany zostaje nietknięta).</li>
+      <li>${ico("volume-x","ico-sm")} <b>Spotify, Apple Music i adresy spoza tej listy</b> — inna domena,
+        więc przeglądarka nie pozwala stronie ruszyć dźwięku. Głośność ustawiasz w samym odtwarzaczu na kafelku.</li>
+    </ul>
+
+    <h3>${ico("timer","ico-sm")} Timery</h3>
+    <p>Timer to zwykły kafelek na ścianie. Trzy tryby:</p>
+    <ul>
+      <li><b>Odliczanie</b> — od zadanego czasu do zera; po dojściu do zera miga na czerwono.</li>
+      <li><b>W górę</b> — mierzy czas od startu.</li>
+      <li><b>Do godziny</b> — ile zostało do konkretnej godziny zegarowej.</li>
+    </ul>
+    <p>Timer chodzi dalej po zmianie układu, po odświeżeniu strony i wtedy, gdy karta jest w tle.</p>
+
+    <h3>${ico("bookmark","ico-sm")} Presety widoku</h3>
+    <p>Preset zapamiętuje <b>układ siatki razem z tym, które sceny są włączone</b>. Przełączasz kliknięciem
+      w pasku pod nagłówkiem albo skrótem <kbd>Shift</kbd> + numer.</p>
+    <ul>
+      <li>Ustaw ścianę tak, jak chcesz, otwórz <b>Układ</b> i kliknij <b>Zapisz obecny widok</b>.</li>
+      <li>Nazwę zmieniasz wpisując ją wprost w liście presetów; strzałkami ustalasz kolejność,
+        a ta wyznacza numery skrótów.</li>
+      <li>${ico("save","ico-sm")} <b>Nadpisz</b> zapisuje w presecie to, co widzisz w tej chwili.</li>
+      <li>Jeśli po przełączeniu ruszysz siatkę, przy presecie zapali się pomarańczowa kropka i słowo
+        <b>zmieniony</b> — wtedy albo nadpisz preset, albo kliknij go ponownie, żeby wrócić do zapisanej wersji.</li>
+    </ul>
+
+    <h3>${ico("keyboard","ico-sm")} Skróty klawiszowe</h3>
+    ${K}
+
+    <h3>${ico("share-2","ico-sm")} Zapis, eksport, udostępnianie</h3>
+    <p>Konfiguracja zapisuje się w tej przeglądarce automatycznie. W sekcji <b>Konfiguracja</b> w ustawieniach:</p>
+    <ul>
+      <li>${ico("download","ico-sm")} <b>Eksportuj plik</b> — pobiera <code>.json</code> z całym zestawem scen i układem.</li>
+      <li>${ico("upload","ico-sm")} <b>Importuj plik</b> — wczytuje taki plik na innym komputerze.</li>
+      <li>${ico("link","ico-sm")} <b>Kopiuj link</b> — pakuje konfigurację do adresu; kto go otworzy, dostanie pytanie,
+        czy wczytać gotowy zestaw. Wygodne do wysłania reszcie ekipy.</li>
+    </ul>
+
+    <h3>${ico("circle-alert","ico-sm")} Gdy coś nie działa</h3>
+    <ul>
+      <li><b>Brak sygnału na kafelku</b> — serwis może blokować osadzanie (nagłówek <code>X-Frame-Options</code>)
+        albo transmisja nie trwa. Użyj <b>Spróbuj ponownie</b> lub otwórz link w nowej karcie, żeby sprawdzić.</li>
+      <li><b>Linki produkcyjne</b> działają tylko wtedy, gdy jesteś w tej samej sieci co produkcja.</li>
+      <li><b>Twitch nie startuje</b> — odtwarzacz Twitcha wymaga, by strona działała po HTTPS na znanej domenie.
+        Z pliku otwartego lokalnie (<code>file://</code>) nie zadziała.</li>
+      <li><b>Nie ma dźwięku</b> — sprawdź, czy scena jest zaznaczona w panelu Audio i czy sam odtwarzacz nie jest wyciszony.</li>
+    </ul>
+    <div class="hbox">${ico("info","ico-sm")} <b>Blokada edycji</b> w ustawieniach chroni przed przypadkową zmianą adresów
+      w trakcie realizacji. To wygoda, a nie zabezpieczenie — cała konfiguracja i tak leży po stronie przeglądarki.</div>`;
+
+  return `
+    <div class="hbox">${ico("zap","ico-sm")} <b>Three steps:</b> open <b>Settings</b> (gear) →
+      <b>Add stream</b> and paste a link → pick a <b>Layout</b>. Everything saves itself in this browser.</div>
+
+    <h3>${ico("tv","ico-sm")} Adding streams</h3>
+    <p>Paste an ordinary link — the embed URL is built for you. Supported:</p>
+    <ul>
+      <li><b>YouTube</b> — videos, live streams, Shorts, playlists</li>
+      <li><b>Twitch</b> — channels, VODs and clips</li>
+      <li><b>Kick</b> — channels</li>
+      <li><b>Vimeo</b> — videos</li>
+      <li><b>Spotify</b> and <b>Apple Music</b> — tracks, albums, playlists, podcasts</li>
+      <li>any other URL — embedded as-is, if the service allows it</li>
+    </ul>
+    <p>A hint under the field tells you which service was recognised. The switch on the left turns a scene
+      on and off; the colour square sets the tile's border colour.</p>
+
+    <h3>${ico("layout-grid","ico-sm")} Layouts</h3>
+    <ul>
+      <li><b>Even grid</b> — every tile the same size, arranged automatically.</li>
+      <li><b>Focus</b> — first scene large, the rest as a thumbnail strip below.</li>
+      <li><b>Column</b> / <b>Row</b> — everything stacked or side by side.</li>
+      <li><b>Custom</b> — set columns and rows, drag scenes onto the grid and give them a span
+        (W = width, H = height in cells).</li>
+    </ul>
+    <p><b>Edit on main screen</b> lets you arrange tiles directly on the wall, at real proportions.
+      Dragging works with a mouse and with a finger.</p>
+
+    <h3>${ico("sliders-horizontal","ico-sm")} Tile controls</h3>
+    <p>Hover a tile — buttons appear in the top-right corner:</p>
+    <ul>
+      <li>${ico("expand","ico-sm")} <b>Fill</b> — video covers the whole tile, no black bars (crops the edges).</li>
+      <li>${ico("repeat","ico-sm")} <b>Loop</b> — looped playback (YouTube only).</li>
+      <li>${ico("eye-off","ico-sm")} <b>Hide</b> — turns the scene off, e.g. when a source dies.</li>
+      <li>${ico("rotate-cw","ico-sm")} <b>Reload</b> — reloads that one tile only.</li>
+      <li>${ico("maximize","ico-sm")} <b>Fullscreen</b> · ${ico("external-link","ico-sm")} <b>Open in a new tab</b></li>
+    </ul>
+
+    <h3>${ico("volume-2","ico-sm")} Sound</h3>
+    <p>Every tile starts muted, otherwise you get a wall of noise. Click <b>Audio</b> in the header and pick
+      the scene you want to hear; clicking it again mutes it.</p>
+    <ul>
+      <li><b>YouTube</b> — controlled natively, no reload, with a volume slider.</li>
+      <li>${ico("rotate-cw","ico-sm")} <b>Twitch, Kick, Vimeo</b> — these players expose no public API,
+        so turning sound on reloads that single tile (the rest of the wall is untouched).</li>
+      <li>${ico("volume-x","ico-sm")} <b>Spotify, Apple Music and anything outside this list</b> — another
+        domain, so the browser will not let the page touch the sound. Set the volume in the player on the tile.</li>
+    </ul>
+
+    <h3>${ico("timer","ico-sm")} Timers</h3>
+    <p>A timer is just another tile on the wall. Three modes:</p>
+    <ul>
+      <li><b>Countdown</b> — from a set time to zero; blinks red when it hits zero.</li>
+      <li><b>Count up</b> — measures time from the start.</li>
+      <li><b>To time</b> — how long is left until a specific clock time.</li>
+    </ul>
+    <p>A timer keeps running across layout changes, page reloads, and while the tab sits in the background.</p>
+
+    <h3>${ico("bookmark","ico-sm")} View presets</h3>
+    <p>A preset remembers <b>the grid layout together with which scenes are on</b>. Switch from the bar
+      under the header, or with <kbd>Shift</kbd> + number.</p>
+    <ul>
+      <li>Arrange the wall how you want it, open <b>Layout</b> and click <b>Save current view</b>.</li>
+      <li>Rename by typing straight into the preset list; the arrows set the order, and the order
+        decides the shortcut numbers.</li>
+      <li>${ico("save","ico-sm")} <b>Overwrite</b> stores whatever you are looking at right now.</li>
+      <li>If you change the grid after switching, an amber dot and the word <b>modified</b> appear on
+        the preset — either overwrite it, or click it again to return to the saved version.</li>
+    </ul>
+
+    <h3>${ico("keyboard","ico-sm")} Keyboard shortcuts</h3>
+    ${K}
+
+    <h3>${ico("share-2","ico-sm")} Saving, export, sharing</h3>
+    <p>Your setup is saved in this browser automatically. Under <b>Configuration</b> in settings:</p>
+    <ul>
+      <li>${ico("download","ico-sm")} <b>Export file</b> — downloads a <code>.json</code> with every scene and the layout.</li>
+      <li>${ico("upload","ico-sm")} <b>Import file</b> — loads that file on another machine.</li>
+      <li>${ico("link","ico-sm")} <b>Copy link</b> — packs the config into a URL; whoever opens it is asked
+        whether to load the ready-made set. Handy for sending to the rest of the crew.</li>
+    </ul>
+
+    <h3>${ico("circle-alert","ico-sm")} When something breaks</h3>
+    <ul>
+      <li><b>No signal on a tile</b> — the service may block embedding (<code>X-Frame-Options</code>)
+        or the stream is offline. Use <b>Try again</b>, or open the link in a new tab to check.</li>
+      <li><b>Production links</b> only work when you are on the same network as the production.</li>
+      <li><b>Twitch will not start</b> — its player requires the page to be served over HTTPS from a known
+        domain. It will not work from a local <code>file://</code> page.</li>
+      <li><b>No sound</b> — check that the scene is selected in the Audio panel and the player itself is not muted.</li>
+    </ul>
+    <div class="hbox">${ico("info","ico-sm")} <b>Edit lock</b> in settings guards against changing URLs by accident
+      mid-show. It is convenience, not security — the whole config lives in the browser anyway.</div>`;
+}
+
+function renderHelp(){
+  document.getElementById("helpBody").innerHTML=helpHTML();
+  paintIcons();
+}
+
+/* --- eksport / import --- */
+function b64encode(str){
+  const bytes=new TextEncoder().encode(str);
+  let bin=""; for(let i=0;i<bytes.length;i++) bin+=String.fromCharCode(bytes[i]);
+  return btoa(bin).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+}
+function b64decode(s){
+  const b=s.replace(/-/g,"+").replace(/_/g,"/");
+  const bin=atob(b+"=".repeat((4-b.length%4)%4));
+  const bytes=new Uint8Array(bin.length);
+  for(let i=0;i<bin.length;i++) bytes[i]=bin.charCodeAt(i);
+  return new TextDecoder().decode(bytes);
+}
+
+function exportConfig(){
+  const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});
+  const a=document.createElement("a");
+  const stamp=new Date().toISOString().slice(0,10);
+  a.href=URL.createObjectURL(blob);
+  a.download=`multiview-${stamp}.json`;
+  a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+  toast(t("exported"));
+}
+
+function applyImported(raw){
+  state=sanitizeState(raw);
+  saveState();
+  tileNodes.forEach((r,id)=>destroyTile(id));
+  activeAudioId=null; editWall=false;
+  applyI18n(); renderWall(); renderSettings();
+}
+
+function copyShareLink(){
+  const url=location.origin+location.pathname+"#cfg="+b64encode(JSON.stringify(state));
+  const done =()=>toast(t("linkCopied"));
+  const fail =()=>{ window.prompt(t("copyLink"), url); };
+  if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(done, fail);
+  else fail();
+}
+
+function maybeLoadFromHash(){
+  const h=location.hash||"";
+  if(!h.startsWith("#cfg=")) return;
+  let raw=null;
+  try{ raw=JSON.parse(b64decode(h.slice(5))); }
+  catch(e){ toast(t("importErr"), true); history.replaceState(null,"",location.pathname); return; }
+  history.replaceState(null,"",location.pathname);
+  if(!confirm(t("confirmLoadShared"))) return;
+  applyImported(raw);
+  toast(t("sharedLoaded"));
+}
+
+/* --- wake lock --- */
+async function requestWakeLock(){
+  if(!state.opts.keepAwake || !("wakeLock" in navigator)) return;
+  try{
+    wakeLock=await navigator.wakeLock.request("screen");
+    wakeLock.addEventListener("release",()=>{ wakeLock=null; });
+  }catch(e){ /* np. brak zgody albo bateria — nic się nie dzieje */ }
+}
+function releaseWakeLock(){ if(wakeLock){ wakeLock.release().catch(()=>{}); wakeLock=null; } }
+document.addEventListener("visibilitychange",()=>{
+  if(document.visibilityState==="visible" && !wakeLock) requestWakeLock();
+});
+
+/* --- szuflady i język --- */
+function openDrawer(el){
+  document.getElementById("scrim").classList.add("show");
+  el.classList.add("show");
+  el.setAttribute("aria-hidden","false");
+}
 function closeDrawers(){
   document.getElementById("scrim").classList.remove("show");
-  document.querySelectorAll(".drawer").forEach(d=>{d.classList.remove("show");d.setAttribute("aria-hidden","true");});
+  document.querySelectorAll(".drawer").forEach(d=>{
+    d.classList.remove("show"); d.setAttribute("aria-hidden","true");
+  });
 }
-document.getElementById("scrim").onclick=closeDrawers;
-document.querySelectorAll("[data-close]").forEach(b=>b.onclick=closeDrawers);
-document.addEventListener("keydown",e=>{if(e.key==="Escape")closeDrawers();});
 
-document.getElementById("openSettings").onclick=()=>{renderSettings();openDrawer(document.getElementById("settingsDrawer"));};
-document.getElementById("openLayout").onclick=()=>{renderEditor();openDrawer(document.getElementById("layoutDrawer"));};
-document.getElementById("reloadAll").onclick=()=>document.querySelectorAll("#wall iframe").forEach(f=>{f.src=f.src;});
+function applyI18n(){
+  document.querySelectorAll("[data-i18n]").forEach(el=>{ el.textContent=t(el.dataset.i18n); });
+  document.querySelectorAll("[data-i18n-title]").forEach(el=>{ el.title=t(el.dataset.i18nTitle); });
+  document.querySelectorAll("[data-i18n-aria]").forEach(el=>{ el.setAttribute("aria-label",t(el.dataset.i18nAria)); });
+  document.documentElement.lang=state.lang;
+  document.querySelectorAll("#langseg button").forEach(b=>
+    b.setAttribute("aria-pressed", String(b.dataset.lang===state.lang)));
+  tick();
+}
+function setLang(l){
+  if(state.lang===l) return;
+  state.lang=l; saveState(); applyI18n();
+  renderSettingsIfOpen();
+  if(document.getElementById("layoutDrawer").classList.contains("show")) renderEditor();
+  if(document.getElementById("helpDrawer").classList.contains("show"))   renderHelp();
+  const ab=document.getElementById("audiobar"); if(ab && !ab.hidden) renderAudioPanel();
+  renderPresetBar(); renderPresetList();
+  tileNodes.forEach((rec,id)=>{ const s=byId(id); if(s) paintTile(s,1); });
+  if(!state.sources.some(s=>s.enabled)) renderWall();
+}
 
-document.getElementById("addStudio").onclick=()=>{
-  const n=state.sources.filter(s=>s.type==="studio").length+1;
-  state.sources.push({id:"cst"+Date.now(),name:t("customName")+" "+n,type:"studio",url:"",enabled:true});
-  saveState();renderSettings();
-};
-document.getElementById("addTimer").onclick=()=>{
-  const n=state.sources.filter(s=>s.type==="timer").length+1;
-  const cols=DEMO_COLORS;
-  state.sources.push({id:"tmr"+Date.now(),name:t("timerName")+" "+n,type:"timer",mode:"down",h:0,m:5,s:0,enabled:true,color:cols[(n-1)%cols.length]});
-  saveState();renderSettings();renderWall();
-};
+function toggleFullWall(){
+  const el=document.documentElement;
+  if(document.fullscreenElement) document.exitFullscreen().catch(()=>{});
+  else if(el.requestFullscreen) el.requestFullscreen().catch(()=>{});
+}
+function reloadAll(){ tileNodes.forEach((rec,id)=>{ if(rec.iframe) reloadTile(id); }); }
 
-document.querySelectorAll(".preset-btn").forEach(b=>b.onclick=()=>{
-  state.layout.mode=b.dataset.preset;
-  if(b.dataset.preset==="custom"){
-    ensureCells();
-    if(state.layout.cells.every(c=>!c)) activeSources().forEach((s,i)=>{if(i<state.layout.cells.length)state.layout.cells[i]=s.id;});
+// Numer jak w prawym dolnym rogu kafelka.
+function soloByIndex(n){
+  const ids=[...tileNodes.keys()].filter(id=>tileNodes.get(id).iframe);
+  const id=ids[n-1];
+  if(id) setSolo(id);
+}
+
+/* --- skróty --- */
+const IS_MAC = /Mac|iPhone|iPad|iPod/i.test(
+  (navigator.userAgentData && navigator.userAgentData.platform) || navigator.platform || navigator.userAgent || "");
+
+// Symbole modyfikatorów do wyświetlenia w instrukcji.
+const MOD = IS_MAC
+  ? {shift:"\u21e7", combo:"\u2318\u2325", esc:"\u238b", sep:""}
+  : {shift:"Shift",  combo:"Ctrl+Alt",       esc:"Esc",     sep:" + "};
+const kbdShift = k => MOD.shift + MOD.sep + k;
+
+function keyInfo(e){
+  const code=e.code||"";
+  let digit=null, letter=null;
+  const md=/^(?:Digit|Numpad)([0-9])$/.exec(code);          // działa też na klawiaturze numerycznej
+  if(md) digit=parseInt(md[1],10);
+  const ml=/^Key([A-Z])$/.exec(code);
+  if(ml) letter=ml[1].toLowerCase();
+  if(digit===null && letter===null && e.key){               // awaryjnie, gdy brak e.code
+    if(/^[0-9]$/.test(e.key)) digit=parseInt(e.key,10);
+    else if(/^[a-zA-Z]$/.test(e.key)) letter=e.key.toLowerCase();
   }
-  renderEditor();
-});
-document.querySelectorAll("[data-step]").forEach(b=>b.onclick=()=>{
-  const k=b.dataset.step,d=parseInt(b.dataset.d,10);
-  state.layout[k]=Math.min(12,Math.max(1,(state.layout[k]||1)+d));
-  ensureCells();renderEditor();
-});
-document.getElementById("sizeToggle").onclick=()=>{
-  resizeMode=!resizeMode;
-  document.getElementById("sizeToggle").setAttribute("aria-expanded",String(resizeMode));
-  renderEditor();
-};
-document.getElementById("applyLayout").onclick=()=>{saveState();renderWall();closeDrawers();};
-document.getElementById("editWallBtn").onclick=()=>{
-  state.layout.mode="custom";
-  ensureCells();
-  if(state.layout.cells.every(c=>!c)) activeSources().forEach((s,i)=>{if(i<state.layout.cells.length)state.layout.cells[i]=s.id;});
-  editWall=true; saveState(); closeDrawers(); renderWall();
+  const combo = IS_MAC ? (e.metaKey && e.altKey && !e.ctrlKey)
+                       : (e.ctrlKey && e.altKey && !e.metaKey);
+  const bare  = !e.metaKey && !e.ctrlKey && !e.altKey;
+  return {code, digit, letter, combo, bare, shift:e.shiftKey};
+}
+
+const KEY_ACTIONS={
+  a: ()=>toggleAudioBar(),
+  l: ()=>{ renderEditor();   openDrawer(document.getElementById("layoutDrawer")); },
+  s: ()=>{ renderSettings(); openDrawer(document.getElementById("settingsDrawer")); },
+  h: ()=>{ renderHelp();     openDrawer(document.getElementById("helpDrawer")); },
+  r: reloadAll,
+  f: toggleFullWall,
 };
 
-const started=Date.now();
-function tick(){
-  const d=new Date();const p=n=>String(n).padStart(2,"0");
-  document.getElementById("clkHM").textContent=`${p(d.getHours())}:${p(d.getMinutes())}`;
-  document.getElementById("clkS").textContent=p(d.getSeconds());
-  const loc=state.lang==="en"?"en-GB":"pl-PL";
-  document.getElementById("clkDate").textContent=d.toLocaleDateString(loc,{weekday:"long",day:"numeric",month:"long",year:"numeric"});
-  state.sources.forEach(src=>{
-    if(src.type!=="timer"||!src.enabled) return;
-    const te=document.querySelector(`[data-timer="${src.id}"] .tmr-time`);
-    if(!te) return;
-    if(src.mode==="clock"){
-      const v=clockRemaining(src);
-      te.textContent=(v<0?'−':'')+fmtTimer(Math.abs(v));
-      te.classList.toggle("done", v<0);
-      te.style.color = v<0 ? '#ff2d21' : (src.color||'#33b5d1');
-    }else{
-      const ts=timerState[src.id]; if(!ts||!ts.running) return;
-      if(src.mode==="up") ts.left+=1; else { ts.left=Math.max(0,ts.left-1); if(ts.left===0) ts.running=false; }
-      te.textContent=fmtTimer(ts.left); te.classList.toggle("done", src.mode!=="up" && ts.left===0);
-      const tg=te.parentElement.querySelector('[data-tc="toggle"]'); if(tg && !ts.running) tg.textContent=t("tmrStart");
+function installShortcuts(){
+  document.addEventListener("keydown", e=>{
+    if(e.key==="Escape"){
+      if(document.fullscreenElement) return;   // pełny ekran zamyka sama przeglądarka
+      closeDrawers();
+      return;
+    }
+    const el=e.target;
+    if(el && (el.tagName==="INPUT" || el.tagName==="TEXTAREA" || el.isContentEditable)) return;
+
+    const k=keyInfo(e);
+    if(!k.bare && !k.combo) return;
+
+    if(k.code==="Slash" && k.shift){            // "?" — na każdym układzie
+      e.preventDefault(); KEY_ACTIONS.h(); return;
+    }
+
+    if(k.digit!==null){
+      if(k.digit===0){ if(k.bare && !k.shift){ e.preventDefault(); muteAll(); } return; }
+      // preset: ⇧cyfra albo ⌘⌥cyfra
+      if((k.bare && k.shift) || k.combo){ e.preventDefault(); applyPresetByIndex(k.digit); return; }
+      // solo audio: goła cyfra
+      if(k.bare && !k.shift){ e.preventDefault(); soloByIndex(k.digit); return; }
+      return;
+    }
+
+    if(k.letter && KEY_ACTIONS[k.letter]){
+      if(k.combo || (k.bare && !k.shift)){ e.preventDefault(); KEY_ACTIONS[k.letter](); }
     }
   });
 }
-setInterval(tick,1000);tick();
 
-document.querySelectorAll("#langseg button").forEach(b=>b.onclick=()=>setLang(b.dataset.lang));
+/* --- zegar --- */
+function tick(){
+  const d=new Date();
+  const hm=document.getElementById("clkHM"); if(!hm) return;
+  hm.textContent=`${p2(d.getHours())}:${p2(d.getMinutes())}`;
+  document.getElementById("clkS").textContent=p2(d.getSeconds());
+  document.getElementById("clkDate").textContent=
+    d.toLocaleDateString(state.lang==="en"?"en-GB":"pl-PL",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
+  state.sources.forEach(src=>{ if(src.type==="timer" && tileNodes.has(src.id)) paintTimer(src); });
+}
 
-loadState();
-renderWall();
-applyI18n();
+/* --- start --- */
+function boot(){
+  loadState();
+  maybeLoadFromHash();
 
-// sprzątanie ekranu powitalnego
-(function(){
+  // Intro raz na przeglądarkę.
+  const seen = localStorage.getItem("multiview.introSeen")==="1";
   const intro=document.getElementById("intro");
-  if(!intro) return;
-  const reduce=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  setTimeout(()=>intro.classList.add("gone"), reduce?1500:2900);
-})();
+  if(!seen && state.opts.showIntro){
+    document.body.classList.add("with-intro");
+    intro.hidden=false;
+    const hide=()=>{ intro.classList.add("gone"); localStorage.setItem("multiview.introSeen","1"); };
+    const reduce=window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    setTimeout(hide, reduce?1200:2900);
+    document.getElementById("introSkip").onclick=hide;
+    intro.addEventListener("click",hide);
+  }else{
+    intro.remove();
+  }
+
+  applyI18n();
+  renderWall();
+  renderPresetBar();
+  paintIcons();
+
+  document.getElementById("scrim").onclick=closeDrawers;
+  document.querySelectorAll("[data-close]").forEach(b=>b.onclick=closeDrawers);
+  document.querySelectorAll("#langseg button").forEach(b=>b.onclick=()=>setLang(b.dataset.lang));
+
+  document.getElementById("openSettings").onclick=()=>{ renderSettings(); openDrawer(document.getElementById("settingsDrawer")); };
+  document.getElementById("openLayout").onclick  =()=>{ renderEditor();   openDrawer(document.getElementById("layoutDrawer")); };
+  document.getElementById("openHelp").onclick    =()=>{ renderHelp();     openDrawer(document.getElementById("helpDrawer")); };
+  document.getElementById("openAudio").onclick   =()=>toggleAudioBar();
+  document.getElementById("reloadAll").onclick   =reloadAll;
+  document.getElementById("fullWall").onclick    =toggleFullWall;
+  document.getElementById("abClose").onclick     =()=>toggleAudioBar(false);
+  document.getElementById("abMuteAll").onclick   =muteAll;
+
+  const vr=document.getElementById("abVolRange");
+  vr.addEventListener("input",()=>{
+    state.vol=clampInt(vr.value,0,100)||0;
+    document.getElementById("abVolVal").textContent=state.vol+"%";
+    if(activeAudioId){
+      const rec=tileNodes.get(activeAudioId);
+      if(rec && rec.iframe) ytCmd(rec.iframe,"setVolume",[state.vol]);
+    }
+  });
+  vr.addEventListener("change", saveState);
+
+  document.getElementById("importFile").addEventListener("change", ev=>{
+    const file=ev.target.files && ev.target.files[0];
+    ev.target.value="";
+    if(!file) return;
+    const fr=new FileReader();
+    fr.onload=()=>{
+      try{ applyImported(JSON.parse(fr.result)); toast(t("imported")); }
+      catch(e){ toast(t("importErr"), true); }
+    };
+    fr.onerror=()=>toast(t("importErr"), true);
+    fr.readAsText(file);
+  });
+
+  document.getElementById("addStudio").onclick=()=>{
+    const n=state.sources.filter(s=>s.type==="studio").length+1;
+    state.sources.push({id:"cst"+Date.now(), name:t("customName")+" "+n, type:"studio",
+                        url:"", enabled:true, loop:true, run:{status:"idle",startedAt:0,accumMs:0}});
+    saveState(); renderSettings();
+  };
+  document.getElementById("addTimer").onclick=()=>{
+    const n=state.sources.filter(s=>s.type==="timer").length+1;
+    state.sources.push({id:"tmr"+Date.now(), name:t("timerName")+" "+n, type:"timer", mode:"down",
+                        h:0, m:5, s:0, enabled:true, color:DEMO_COLORS[(n-1)%DEMO_COLORS.length],
+                        run:{status:"idle",startedAt:0,accumMs:0}});
+    saveState(); renderSettings(); renderWall();
+  };
+
+  document.querySelectorAll(".preset-btn").forEach(b=>b.onclick=()=>{
+    state.layout.mode=b.dataset.preset;
+    if(b.dataset.preset==="custom"){
+      ensureCells();
+      if(state.layout.cells.every(c=>!c))
+        activeSources().forEach((s,i)=>{ if(i<state.layout.cells.length) state.layout.cells[i]=s.id; });
+    }
+    saveState(); renderEditor();
+  });
+  document.querySelectorAll("[data-step]").forEach(b=>b.onclick=()=>{
+    const k=b.dataset.step, d=parseInt(b.dataset.d,10);
+    state.layout[k]=Math.min(12,Math.max(1,(state.layout[k]||1)+d));
+    ensureCells(); saveState(); renderEditor();
+  });
+  document.getElementById("sizeToggle").onclick=()=>{
+    resizeMode=!resizeMode;
+    document.getElementById("sizeToggle").setAttribute("aria-expanded",String(resizeMode));
+    renderEditor();
+  };
+  document.getElementById("applyLayout").onclick=()=>{ saveState(); renderWall(); closeDrawers(); };
+  document.getElementById("savePresetBtn").onclick=()=>{ savePreset(); renderEditor(); };
+  document.getElementById("editWallBtn").onclick=()=>{
+    state.layout.mode="custom";
+    ensureCells();
+    if(state.layout.cells.every(c=>!c))
+      activeSources().forEach((s,i)=>{ if(i<state.layout.cells.length) state.layout.cells[i]=s.id; });
+    editWall=true; saveState(); closeDrawers(); renderWall();
+  };
+
+  installShortcuts();
+  requestWakeLock();
+  setInterval(tick,1000); tick();
+}
+
+// lucide.js ma defer, więc czekamy na DOM.
+if(document.readyState==="loading") document.addEventListener("DOMContentLoaded", boot);
+else boot();
 </script>
 </body>
 </html>
