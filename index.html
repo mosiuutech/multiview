@@ -2439,6 +2439,7 @@ function helpHTML(){
     ${keyRow("1 – 9", pl?"Dźwięk z kafelka o tym numerze (solo)":"Sound from the tile with that number (solo)")}
     ${keyRow("0",     pl?"Wycisz wszystko":"Mute everything")}
     ${keyRow(kbdShift("1 – 9"), pl?"Przełącz preset widoku":"Switch view preset")}
+    ${keyRow(MOD.alt+MOD.sep+"1 – 9", pl?"Kafelek o tym numerze na pełny ekran (Esc wychodzi)":"That tile to fullscreen (Esc exits)")}
     ${keyRow("A",     pl?"Panel audio":"Audio panel")}
     ${keyRow("L",     pl?"Panel układu":"Layout panel")}
     ${keyRow("S",     pl?"Ustawienia":"Settings")}
@@ -2758,6 +2759,15 @@ function soloByIndex(n){
   const id=ids[n-1];
   if(id) setSolo(id);
 }
+// Fullscreen kafelka po numerze z rogu. Liczymy wszystkie kafelki w kolejności
+// siatki (nie tylko streamy) — na pełny ekran ma sens też timer czy demo.
+function fullscreenTileByIndex(n){
+  const el=[...document.getElementById("wall").querySelectorAll(".tile")][n-1];
+  if(!el) return;
+  if(document.fullscreenElement===el){ document.exitFullscreen().catch(()=>{}); return; }
+  const go=()=>{ if(el.requestFullscreen) el.requestFullscreen().catch(()=>{}); };
+  if(document.fullscreenElement) document.exitFullscreen().then(go).catch(go); else go();
+}
 
 /* --- skróty --- */
 const IS_MAC = /Mac|iPhone|iPad|iPod/i.test(
@@ -2765,8 +2775,8 @@ const IS_MAC = /Mac|iPhone|iPad|iPod/i.test(
 
 // Symbole modyfikatorów do wyświetlenia w instrukcji.
 const MOD = IS_MAC
-  ? {shift:"\u21e7", combo:"\u2318\u2325", esc:"\u238b", sep:""}
-  : {shift:"Shift",  combo:"Ctrl+Alt",       esc:"Esc",     sep:" + "};
+  ? {shift:"\u21e7", combo:"\u2318\u2325", alt:"\u2325", esc:"\u238b", sep:""}
+  : {shift:"Shift",  combo:"Ctrl+Alt",       alt:"Alt",     esc:"Esc",     sep:" + "};
 const kbdShift = k => MOD.shift + MOD.sep + k;
 
 function keyInfo(e){
@@ -2782,8 +2792,10 @@ function keyInfo(e){
   }
   const combo = IS_MAC ? (e.metaKey && e.altKey && !e.ctrlKey)
                        : (e.ctrlKey && e.altKey && !e.metaKey);
+  // sam Alt/Option, bez drugiego modyfikatora — to nie jest nasza kombinacja "combo"
+  const alt   = e.altKey && !e.metaKey && !e.ctrlKey && !e.shiftKey;
   const bare  = !e.metaKey && !e.ctrlKey && !e.altKey;
-  return {code, digit, letter, combo, bare, shift:e.shiftKey};
+  return {code, digit, letter, combo, bare, alt, shift:e.shiftKey};
 }
 
 const KEY_ACTIONS={
@@ -2806,7 +2818,7 @@ function installShortcuts(){
     if(el && (el.tagName==="INPUT" || el.tagName==="TEXTAREA" || el.isContentEditable)) return;
 
     const k=keyInfo(e);
-    if(!k.bare && !k.combo) return;
+    if(!k.bare && !k.combo && !k.alt) return;
 
     if(k.code==="Slash" && k.shift){            // "?" — na każdym układzie
       e.preventDefault(); KEY_ACTIONS.h(); return;
@@ -2816,6 +2828,8 @@ function installShortcuts(){
       if(k.digit===0){ if(k.bare && !k.shift){ e.preventDefault(); muteAll(); } return; }
       // preset: ⇧cyfra albo ⌘⌥cyfra
       if((k.bare && k.shift) || k.combo){ e.preventDefault(); applyPresetByIndex(k.digit); return; }
+      // fullscreen kafelka: ⌥/Alt + cyfra
+      if(k.alt){ e.preventDefault(); fullscreenTileByIndex(k.digit); return; }
       // solo audio: goła cyfra
       if(k.bare && !k.shift){ e.preventDefault(); soloByIndex(k.digit); return; }
       return;
